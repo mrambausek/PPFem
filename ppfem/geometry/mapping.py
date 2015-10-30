@@ -13,8 +13,12 @@ class Mapping(abc.ABC):
         raise Exception("Abstract method called!")
 
     @abc.abstractmethod
-    def real_point(self, point):
+    def map_point(self, point):
         raise Exception("Abstract method called!")
+
+    @abc.abstractmethod
+    def map_points(self, points):
+        return [self.map_point(p) for p in points]
 
     @abc.abstractmethod
     def jacobian(self, point):

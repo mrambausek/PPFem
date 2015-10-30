@@ -42,5 +42,5 @@ class FunctionFunctor(QuadratureFunctor):
         self._function = function
 
     def _eval_functor(self, point):
-        real_point = self._mapping.real_point(point)
+        real_point = self._mapping.map_point(point)
         return self._function(real_point)
