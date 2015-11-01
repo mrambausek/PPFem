@@ -36,11 +36,10 @@ class QuadratureFunctor(abc.ABC):
         raise Exception("Abstract method called!")
 
 
-class FunctionFunctor(QuadratureFunctor):
+class PhysicalSpaceFunctor(QuadratureFunctor):
 
     def __init__(self, function):
         self._function = function
 
     def _eval_functor(self, point):
-        real_point = self._mapping.map_point(point)
-        return self._function(real_point)
+        return self._function(self._mapping.map_point(point))
