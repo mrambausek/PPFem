@@ -29,6 +29,9 @@ class Mesh(object):
     def add_cell(self, vertex_numbers, number):
         Mesh._add_entity(Cell(vertex_numbers, number, self), number, self._cell_dict, "cell dict")
 
+    def vertices(self, global_vertex_numbers):
+        return [v for v in self._vertex_dict[global_vertex_numbers]]
+
     @staticmethod
     def _add_entity(entity, number, container, container_name):
         if not number in container.keys():

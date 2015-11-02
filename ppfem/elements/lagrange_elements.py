@@ -21,7 +21,7 @@ class LagrangeElement(FiniteElement):
         return np.array([function(p) for p in points])
 
 
-class Line(LagrangeElement):
+class LagrangeLine(LagrangeElement):
 
     def __init__(self, degree, dimension=1):
         LagrangeElement.__init__(self, degree, dimension=dimension)
@@ -30,8 +30,9 @@ class Line(LagrangeElement):
         support_points = self.get_support_points()
         self._n_bases = len(support_points)
         self._n_dofs = self._n_bases * self._dimension
+        self._n_internal_dofs = self._n_dofs - 2
         self._basis_functions = [LagrangeBasis(support_points, i, dimension=self._dimension)
-                                    for i in range(len(support_points))]
+                                 for i in range(len(support_points))]
 
     def get_support_points(self):
         n = self._degree + 1

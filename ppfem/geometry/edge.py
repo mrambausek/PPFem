@@ -1,17 +1,11 @@
+from ppfem.geometry.mesh_entity import MeshEntity
 
 
-class Edge(object):
+class Edge(MeshEntity):
 
     def __init__(self, vertices, index, mesh):
-        self._vertices = tuple(vertices)
-        self.index = index
-        self._mesh = mesh
+        MeshEntity.__init__(self, vertices, index, mesh)
 
-    def global_vertex_indices(self):
-        return [v.global_index() for v in self.vertices()]
-
-    def vertices(self):
-        return self._mesh.vertices(self._vertices)
-
-    def vertex(self, local_vertex_number):
-        return self._mesh.vertex(self._vertices[local_vertex_number])
+    @staticmethod
+    def topological_dim():
+        return 1

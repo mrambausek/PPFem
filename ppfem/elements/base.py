@@ -3,12 +3,14 @@ import abc
 
 
 class FiniteElement(abc.ABC):
+    # todo: information if a dof is internal or not
 
     def __init__(self, degree, dimension):
         self._dimension = dimension
         self._degree = degree
         self._basis_functions = None
         self._n_dofs = None
+        self._n_internal_dofs = None
         self._n_bases = None
         self._setup_basis()
 

@@ -7,10 +7,13 @@ class QPData(object):
         self.weight = weight
 
 
-class Quadrature(object):
+class Quadrature(abc.ABC):
 
     def __init__(self):
         self._quadrature_data = None
+
+    def number_of_quadrature_points(self):
+        return len(self._quadrature_data)
 
     def __call__(self, quadrature_functor):
         qsum = 0.0
