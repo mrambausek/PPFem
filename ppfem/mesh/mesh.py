@@ -32,6 +32,24 @@ class Mesh(object):
     def vertices(self, global_vertex_numbers):
         return [v for v in self._vertex_dict[global_vertex_numbers]]
 
+    def cells(self):
+        return self._cell_dict.values()
+
+    def faces(self):
+        return self._face_dict.values()
+
+    def edges(self):
+        return self._edge_dict.values()
+
+    def vertices(self):
+        return self._vertex_dict.values()
+
+    def topological_dim(self):
+        return self._topological_dim
+
+    def space_dim(self):
+        return self._space_dim
+
     @staticmethod
     def _add_entity(entity, number, container, container_name):
         if not number in container.keys():

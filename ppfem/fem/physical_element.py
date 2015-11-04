@@ -12,6 +12,11 @@ class PhysicalElement(abc.ABC):
     def number_of_global_dofs_per_vertex():
         raise Exception('Abstract method called!')
 
+    @staticmethod
+    @abc.abstractmethod
+    def number_of_global_non_vertex_dofs():
+        raise Exception('Abstract method called!')
+
     @abc.abstractmethod
     def compute_rhs(self, mesh_entity, dof_values):
         raise Exception('Abstract method called!')
