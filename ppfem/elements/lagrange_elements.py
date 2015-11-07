@@ -36,7 +36,7 @@ class LagrangeLine(LagrangeElement):
 
     def get_support_points(self):
         n = self._degree + 1
-        return [Point(-1 + i * 2/(n-1), index=i) for i in range(n)]
+        return [Point(-1), Point(1)] + [Point(-1 + i * 2/(n-1), index=i) for i in range(1, n-1)]
 
     @staticmethod
     def space_dim():

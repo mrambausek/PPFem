@@ -44,13 +44,17 @@ class FiniteElement(abc.ABC):
         # return np.array([f.value(point) for f in self._basis_functions])
         return np.array([self.basis_function_value(i, point) for i in range(self._n_bases)])
 
-    def basis_function_gradient(self, index, point):
-        return self._basis_functions[index].gradient(point)
+    def basis_function_gradient(self, index, point, jacobian_inv=None):
+        if jacobian_inv is None:
+            return self._basis_functions[index].gradient(point)
+        else:
+            return np.dot(self._basis_functions[index].gradient(point), jacobian_inv)
 
-    def basis_function_gradients(self, point):
+    def basis_function_gradients(self, point, jacobian_inv=None):
         # first array axis corresponds to basis function!
         # return np.array([f.gradient(point) for f in self._basis_functions])
-        return np.array([self.basis_function_gradient(i, point) for i in range(self._n_bases)])
+        return np.array([self.basis_function_gradient(i, point, jacobian_inv=jacobian_inv)
+                             for i in range(self._n_bases)])
 
     def function_value(self, dof_values, point):
         # first array axis corresponds to basis function!
@@ -60,15 +64,20 @@ class FiniteElement(abc.ABC):
         else:
             return np.einsum('ijk,ijk->jk', dof_values, self.basis_function_values(point))
 
-    def function_gradient(self, dof_values, point):
+    def function_gradient(self, dof_values, point, jacobian_inv=None):
         # first array axis corresponds to basis function!
         if self._dimension == 1:
             # return np.float64(np.einsum('i,i', dof_values, self.basis_function_values(point)))
-            return np.dot(dof_values, self.basis_function_gradients(point))
+            return np.dot(dof_values,
+                          self.basis_function_gradients(point, jacobian_inv=jacobian_inv))
         elif self.space_dim() > 1:
-            return np.einsum('ijk,ijkl->jkl', dof_values, self.basis_function_gradients(point))
+            return np.einsum('ijk,ijkl->jkl',
+                             dof_values,
+                             self.basis_function_gradients(point, jacobian_inv=jacobian_inv))
         elif self.space_dim() == 1:
-            return np.einsum('ijk,ijk->jk', dof_values, self.basis_function_gradients(point))
+            return np.einsum('ijk,ijk->jk',
+                             dof_values,
+                             self.basis_function_gradients(point, jacobian_inv=jacobian_inv))
 
     @abc.abstractmethod
     def get_support_points(self):

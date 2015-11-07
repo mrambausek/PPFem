@@ -32,6 +32,9 @@ class Mesh(object):
     def vertices(self, global_vertex_numbers):
         return [v for v in self._vertex_dict[global_vertex_numbers]]
 
+    def vertices(self):
+        return self._vertex_dict.values()
+
     def cells(self):
         return self._cell_dict.values()
 
@@ -40,9 +43,6 @@ class Mesh(object):
 
     def edges(self):
         return self._edge_dict.values()
-
-    def vertices(self):
-        return self._vertex_dict.values()
 
     def topological_dim(self):
         return self._topological_dim

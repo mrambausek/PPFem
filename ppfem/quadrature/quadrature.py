@@ -15,6 +15,9 @@ class Quadrature(abc.ABC):
     def number_of_quadrature_points(self):
         return len(self._quadrature_data)
 
+    def quadrature_data(self):
+        return self._quadrature_data
+
     def __call__(self, quadrature_functor):
         qsum = 0.0
         for qp_data in self._quadrature_data:
@@ -32,17 +35,4 @@ class QuadratureFunctor(abc.ABC):
         self._mapping = mapping
 
     def __call__(self, point):
-        return self._eval_functor(point) * self._mapping.jacobian_det(point)
-
-    @abc.abstractmethod
-    def _eval_functor(self, point):
-        raise Exception("Abstract method called!")
-
-
-class PhysicalSpaceFunctor(QuadratureFunctor):
-
-    def __init__(self, function):
-        self._function = function
-
-    def _eval_functor(self, point):
-        return self._function(self._mapping.map_point(point))
+        return self._functor(point) * self._mapping.jacobian_det(point)

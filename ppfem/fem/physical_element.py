@@ -3,18 +3,15 @@ import abc
 
 class PhysicalElement(abc.ABC):
 
-    def __init__(self, material, quadrature):
-        self._material = material
-        self._quadrature = quadrature
+    def __init__(self):
+        pass
 
-    @staticmethod
     @abc.abstractmethod
-    def number_of_global_dofs_per_vertex():
+    def number_of_global_dofs_per_vertex(self):
         raise Exception('Abstract method called!')
 
-    @staticmethod
     @abc.abstractmethod
-    def number_of_global_non_vertex_dofs():
+    def number_of_global_non_vertex_dofs(self):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod

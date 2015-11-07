@@ -10,20 +10,20 @@ class QGauss(quadrature.Quadrature):
         if shape == "line":
             if degree <= 1:
                 self._quadrature_data = [
-                    quadrature.QPData(Point(0.0, index=1), 2.0)
+                    quadrature.QPData(Point(0.0, index=0), 2.0)
                 ]
             elif degree <= 3:
                 self._quadrature_data = [
-                    quadrature.QPData(Point(-sqrt(1/3), index=1), 1.0),
-                    quadrature.QPData(Point( sqrt(1/3), index=2), 1.0)
+                    quadrature.QPData(Point(-sqrt(1/3), index=0), 1.0),
+                    quadrature.QPData(Point( sqrt(1/3), index=1), 1.0)
                 ]
             elif degree <= 5:
                 self._quadrature_data = [
-                    quadrature.QPData(Point(-sqrt(3/5), index=1),
+                    quadrature.QPData(Point(-sqrt(3/5), index=0),
                                       5/9),
-                    quadrature.QPData(Point(0.0, index=2),
+                    quadrature.QPData(Point(0.0, index=1),
                                       8/9),
-                    quadrature.QPData(Point(sqrt(3/5), index=3),
+                    quadrature.QPData(Point(sqrt(3/5), index=2),
                                       5/9)
                 ]
             else:
