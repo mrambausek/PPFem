@@ -89,6 +89,7 @@ class FEAPSytleProblem(LinearizedProblem):
                     continue
                 visited_vertices.append(v)
                 new_dofs, insert_at = self._add_dofs(insert_at, vertex_zeros, v)
+                self._mesh.vertex(v).set_associated_dof_numbers(new_dofs)
                 dofs += new_dofs
 
             new_dofs, insert_at = self._add_dofs(insert_at, non_vertex_zeros)

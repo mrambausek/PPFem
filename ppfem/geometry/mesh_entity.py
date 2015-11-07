@@ -12,7 +12,10 @@ class MeshEntity(abc.ABC):
         return self._vertices
 
     def vertices(self):
-        return self._mesh.vertices(self._vertices)
+        return self._mesh.select_vertices(self._vertices)
+
+    def vertex_coords(self, local_vertex_number=None):
+        raise NotImplementedError("Needs to be implemented!")
 
     def vertex(self, local_vertex_number):
         return self._mesh.vertex(self._vertices[local_vertex_number])

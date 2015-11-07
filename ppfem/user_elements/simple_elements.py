@@ -30,6 +30,9 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
     def _clear_cache(self):
         self._cache = {}
 
+    def _mapping_is_valid(self, point):
+        raise NotImplementedError("This kind of check is not implemented yet.")
+
     def _function_value(self, dof_values, point):
         return self._ref_element.function_value(dof_values, point)
 
@@ -41,8 +44,12 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
         return self._ref_element.basis_function_values(point)
 
     def _shape_function_gradients(self, point):
-        J_inv = self._mapping.jacobian_inv(point)
+        J_inv = self._mapping.inverse_jacobian(point)
         return self._ref_element.basis_function_gradients(point, J_inv)
+
+    def _director(self, point):
+        J = self._mapping.jacobian(point)
+        return J/sp.linalg.norm(J)
 
     def compute_rhs(self, mesh_entity, dof_values):
         if self._current_entity_index != mesh_entity.index:
@@ -69,6 +76,8 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
             material_rhs = self._material.compute_rhs(function_value, function_gradient)
             JxW = self._mapping.jacobian_det(qp.point) * qp.weight
             # shape probleme?
+            # Suboptimale Struktur des Codes: im Element taucht Wissen über die Linear-Form auf!
+            # Das sollte ausgelagert werden!
             rhs += sp.dot(shape_function_gradients.T, material_rhs).reshape((ndofs,)) * JxW
 
         return rhs
@@ -98,6 +107,8 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
             material_rhs = self._material.compute_rhs(function_value, function_gradient)
             JxW = self._mapping.jacobian_det(qp.point) * qp.weight
             # shape probleme?
+            # Suboptimale Struktur des Codes: im Element taucht Wissen über die Bilinear-Form auf!
+            # Das sollte ausgelagert werden!
             lhs += sp.dot(shape_function_gradients.T, sp.dot(material_rhs, shape_function_gradients)) * JxW
 
         return lhs
