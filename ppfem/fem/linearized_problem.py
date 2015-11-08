@@ -4,7 +4,7 @@ import scipy.sparse as sparse
 from ppfem.fem.dof import DOF
 
 
-class LinearizedProblem(abs.ABC):
+class LinearizedProblem(abc.ABC):
     def __init__(self):
         pass
 
@@ -21,7 +21,7 @@ class LinearizedProblem(abs.ABC):
         raise Exception("Abstract method called!")
 
 
-class FEAPSytleProblem(LinearizedProblem):
+class FEAPStyleProblem(LinearizedProblem):
     def __init__(self, mesh, element, boundary_conditions):
         self._mesh = mesh
         self._element = element
@@ -84,7 +84,7 @@ class FEAPSytleProblem(LinearizedProblem):
 
         for e in mesh_entities:
             dofs = []
-            for v in e.global_vertex_indices:
+            for v in e.global_vertex_indices():
                 if v in visited_vertices:
                     continue
                 visited_vertices.append(v)
