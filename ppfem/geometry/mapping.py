@@ -77,4 +77,5 @@ class FEMapping(Mapping):
         elif len(J.shape) == 1 or J.shape[0] == 1 or J.shape[1] == 1:
             raise NotImplementedError("Maybe a projection approach is needed here.")
         elif J.shape[0] == J.shape[1]:
+            print(J.shape, J)
             return spl.inv(J)

@@ -37,7 +37,7 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
         return self._ref_element.function_value(dof_values, point)
 
     def _function_gradient(self, dof_values, point):
-        J_inv = self._mapping.jacobian_inv(point)
+        J_inv = self._mapping.inverse_jacobian(point)
         return self._ref_element.function_gradient(dof_values, point, J_inv)
 
     def _shape_function_values(self, point):
@@ -73,12 +73,15 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
             shape_function_gradients = self._shape_function_gradients(qp.point)
             function_value = self._function_value(dof_values, qp.point)
             function_gradient = self._function_gradient(dof_values, qp.point)
-            material_rhs = self._material.compute_rhs(function_value, function_gradient)
+            physical_coords = self._mapping.map_point(qp.point)
+            material_rhs = self._material.compute_rhs(physical_coords, function_value, function_gradient)
             JxW = self._mapping.jacobian_det(qp.point) * qp.weight
             # shape probleme?
             # Suboptimale Struktur des Codes: im Element taucht Wissen über die Linear-Form auf!
             # Das sollte ausgelagert werden!
-            rhs += sp.dot(shape_function_gradients.T, material_rhs).reshape((ndofs,)) * JxW
+
+            # print(shape_function_gradients.shape, shape_function_gradients.T.shape, material_rhs.shape)
+            rhs += sp.dot(shape_function_gradients, material_rhs).reshape((ndofs,)) * JxW
 
         return rhs
 
@@ -104,11 +107,19 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
             shape_function_gradients = self._shape_function_gradients(qp.point)
             function_value = self._function_value(dof_values, qp.point)
             function_gradient = self._function_gradient(dof_values, qp.point)
-            material_rhs = self._material.compute_rhs(function_value, function_gradient)
+            physical_coords = self._mapping.map_point(qp.point)
+            material_lhs = self._material.compute_lhs(physical_coords, function_value, function_gradient)
             JxW = self._mapping.jacobian_det(qp.point) * qp.weight
             # shape probleme?
             # Suboptimale Struktur des Codes: im Element taucht Wissen über die Bilinear-Form auf!
             # Das sollte ausgelagert werden!
-            lhs += sp.dot(shape_function_gradients.T, sp.dot(material_rhs, shape_function_gradients)) * JxW
+
+            print(shape_function_gradients.shape, material_lhs.shape, shape_function_gradients.T.shape)
+            print(shape_function_gradients, material_lhs)
+            print(sp.dot(shape_function_gradients, material_lhs), sp.dot(shape_function_gradients, material_lhs).shape)
+            print(lhs.shape)
+            s = (ndofs, self._dim)
+            lhs += sp.dot(sp.dot(shape_function_gradients, material_lhs).reshape(s),
+                          shape_function_gradients.reshape(s).T) * JxW
 
         return lhs

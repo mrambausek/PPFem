@@ -68,7 +68,9 @@ class FiniteElement(abc.ABC):
         # first array axis corresponds to basis function!
         if self._dimension == 1:
             # return np.float64(np.einsum('i,i', dof_values, self.basis_function_values(point)))
-            return np.dot(self.basis_function_gradients(point, jacobian_inv=jacobian_inv),
+            # print(self.basis_function_gradients(point, jacobian_inv=jacobian_inv).shape, dof_values.shape)
+            # print(self.basis_function_gradients(point, jacobian_inv=jacobian_inv), dof_values)
+            return np.dot(self.basis_function_gradients(point, jacobian_inv=jacobian_inv).reshape(dof_values.shape).T,
                           dof_values)
         elif self.space_dim() > 1:
             return np.einsum('ijk,ijkl->jkl',
