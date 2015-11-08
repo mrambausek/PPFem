@@ -1,4 +1,5 @@
 import abc
+import scipy as sp
 
 
 class MeshEntity(abc.ABC):
@@ -15,7 +16,10 @@ class MeshEntity(abc.ABC):
         return self._mesh.select_vertices(self._vertices)
 
     def vertex_coords(self, local_vertex_number=None):
-        raise NotImplementedError("Needs to be implemented!")
+        if local_vertex_number is None:
+            return sp.array([v.coords() for v in self.vertices()])
+        else:
+            return self._mesh.select_vertex(local_vertex_number).coords()
 
     def vertex(self, local_vertex_number):
         return self._mesh.vertex(self._vertices[local_vertex_number])

@@ -29,6 +29,9 @@ class Mesh(object):
     def add_cell(self, vertex_numbers, number):
         Mesh._add_entity(Cell(vertex_numbers, number, self), number, self._cell_dict, "cell dict")
 
+    def select_vertex(self, global_vertex_number):
+        return self._vertex_dict[global_vertex_number]
+
     def select_vertices(self, global_vertex_numbers):
         return [self._vertex_dict[v] for v in global_vertex_numbers]
 

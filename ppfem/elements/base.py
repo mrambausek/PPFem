@@ -54,13 +54,13 @@ class FiniteElement(abc.ABC):
         # first array axis corresponds to basis function!
         # return np.array([f.gradient(point) for f in self._basis_functions])
         return np.array([self.basis_function_gradient(i, point, jacobian_inv=jacobian_inv)
-                             for i in range(self._n_bases)])
+                         for i in range(self._n_bases)])
 
     def function_value(self, dof_values, point):
         # first array axis corresponds to basis function!
         if self._dimension == 1:
             # return np.float64(np.einsum('i,i', dof_values, self.basis_function_values(point)))
-            return np.dot(dof_values, self.basis_function_values(point))
+            return np.dot(self.basis_function_values(point).reshape(1, self._n_bases), dof_values)
         else:
             return np.einsum('ijk,ijk->jk', dof_values, self.basis_function_values(point))
 
@@ -68,8 +68,8 @@ class FiniteElement(abc.ABC):
         # first array axis corresponds to basis function!
         if self._dimension == 1:
             # return np.float64(np.einsum('i,i', dof_values, self.basis_function_values(point)))
-            return np.dot(dof_values,
-                          self.basis_function_gradients(point, jacobian_inv=jacobian_inv))
+            return np.dot(self.basis_function_gradients(point, jacobian_inv=jacobian_inv),
+                          dof_values)
         elif self.space_dim() > 1:
             return np.einsum('ijk,ijkl->jkl',
                              dof_values,

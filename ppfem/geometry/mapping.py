@@ -43,8 +43,14 @@ class FEMapping(Mapping):
                                             reference_point)
 
     def jacobian(self, reference_point):
-        return self._element.function_gradient(self._mesh_entity.vertices(),
-                                               reference_point)
+        J = self._element.function_gradient(self._mesh_entity.vertex_coords(),
+                                            reference_point)
+        if sp.isscalar(J):
+            return sp.array([[J]])
+        elif sp.all(sp.array(J.shape) == 1):
+            return J.reshape((1,1))
+        else:
+            return J
 
     def jacobian_det(self, reference_point):
         J = self.jacobian(reference_point)
