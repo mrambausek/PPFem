@@ -6,7 +6,7 @@ from math import sqrt
 class QGauss(quadrature.Quadrature):
 
     def __init__(self, shape, degree):
-        super()
+        quadrature.Quadrature.__init__(self)
         if shape == "line":
             if degree <= 1:
                 self._quadrature_data = [

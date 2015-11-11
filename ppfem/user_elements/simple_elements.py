@@ -1,18 +1,25 @@
 from ppfem.fem.physical_element import PhysicalElement
 from ppfem.elements.lagrange_elements import LagrangeLine
 from ppfem.geometry.mapping import FEMapping
-from ppfem.geometry.edge import Edge
 import scipy as sp
+
+
+class LazyEval(object):
+    def __init__(self, func, args):
+        self._func = func
+        self._args = args
+
+    def __call__(self, *args, **kwargs):
+        return self._func(*self._args)
 
 
 class IsoparametricContinuousLagrange1d(PhysicalElement):
 
-    def __init__(self, material, quadrature, dim):
-        self._material = material
-        self._quadrature = quadrature
+    def __init__(self, dim):
         self._dim = dim
         self._mapping = None
-        self._current_entity_index = None
+        self._ref_element = None
+        self._mesh_entity = None
         self._cache = {}
 
     def number_of_global_dofs_per_vertex(self):
@@ -21,7 +28,12 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
     def number_of_global_non_vertex_dofs(self):
         return 0
 
-    def _setup_shape(self, mesh_entity):
+    def number_of_global_dofs(self):
+        return self.number_of_global_dofs_per_vertex() * self._mesh_entity.number_of_vertices() + \
+               self.number_of_global_non_vertex_dofs()
+
+    def set_mesh_entity(self, mesh_entity):
+        self._mesh_entity = mesh_entity
         vertices = mesh_entity.vertices()
         self._ref_element = LagrangeLine(len(vertices) - 1, self._dim)
         self._mapping = FEMapping(self._ref_element)
@@ -33,93 +45,128 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
     def _mapping_is_valid(self, point):
         raise NotImplementedError("This kind of check is not implemented yet.")
 
-    def _function_value(self, dof_values, point):
+    def function_value(self, dof_values, point):
         return self._ref_element.function_value(dof_values, point)
 
-    def _function_gradient(self, dof_values, point):
+    def function_gradient(self, dof_values, point):
         J_inv = self._mapping.inverse_jacobian(point)
         return self._ref_element.function_gradient(dof_values, point, J_inv)
 
-    def _shape_function_values(self, point):
+    def shape_function_values(self, point):
         return self._ref_element.basis_function_values(point)
 
-    def _shape_function_gradients(self, point):
+    def shape_function_gradients(self, point):
         J_inv = self._mapping.inverse_jacobian(point)
         return self._ref_element.basis_function_gradients(point, J_inv)
 
-    def _director(self, point):
+    def physical_coords(self, ref_point):
+        return self._mapping.map_point(ref_point)
+
+    def director(self, point):
         J = self._mapping.jacobian(point)
         return J/sp.linalg.norm(J)
 
-    def compute_rhs(self, mesh_entity, dof_values):
-        if self._current_entity_index != mesh_entity.index:
-            self._clear_cache()
-            self._current_entity_index = mesh_entity.index
+    def jxw(self, qp):
+        return self._mapping.jacobian_det(qp.point) * qp.weight
 
-        if type(mesh_entity) != Edge:
-            raise Exception("ContinuousLagrange1d operates on edges!")
+    def global_vertex_indices(self):
+        return self._mesh_entity.global_vertex_indices()
 
-        # setup ref. element and mapping
-        self._setup_shape(mesh_entity)
+    def index(self):
+        return self._mesh_entity.index
 
-        # compute values at quadrature points
-        nqp = self._quadrature.number_of_quadrature_points()
-        qp_data = self._quadrature.quadrature_data()
-        ndofs = self._ref_element.n_of_dofs()
-        rhs = sp.zeros(ndofs)
+    def domain_indicator(self):
+        return self._mesh_entity.domain_indicator
 
-        for qp in qp_data:
-            shape_function_values = self._shape_function_values(qp.point)
-            shape_function_gradients = self._shape_function_gradients(qp.point)
-            function_value = self._function_value(dof_values, qp.point)
-            function_gradient = self._function_gradient(dof_values, qp.point)
-            physical_coords = self._mapping.map_point(qp.point)
-            material_rhs = self._material.compute_rhs(physical_coords, function_value, function_gradient)
-            JxW = self._mapping.jacobian_det(qp.point) * qp.weight
-            # shape probleme?
-            # Suboptimale Struktur des Codes: im Element taucht Wissen über die Linear-Form auf!
-            # Das sollte ausgelagert werden!
+    def boundary_indicator(self):
+        return self._mesh_entity.boundary_indicator
 
-            # print(shape_function_gradients.shape, shape_function_gradients.T.shape, material_rhs.shape)
-            rhs += sp.dot(shape_function_gradients, material_rhs).reshape((ndofs,)) * JxW
+    # def _point_data(self, dof_values, q_point):
+    #     return EvalData({
+    #         'physical_coords': LazyEval(self._mapping.map_point, (q_point,)),
+    #         'function_value': LazyEval(self._function_value, (dof_values, q_point)),
+    #         'function_gradient': LazyEval(self._function_gradient, (dof_values, q_point))
+    #     })
 
-        return rhs
-
-    def compute_lhs(self, mesh_entity, dof_values):
-        if self._current_entity_index != mesh_entity.index:
-            self._clear_cache()
-            self._current_entity_index = mesh_entity.index
-
-        if type(mesh_entity) != Edge:
-            raise Exception("ContinuousLagrange1d operates on edges!")
-
-        # setup ref. element and mapping
-        self._setup_shape(mesh_entity)
-
-        # compute values at quadrature points
-        nqp = self._quadrature.number_of_quadrature_points()
-        qp_data = self._quadrature.quadrature_data()
-        ndofs = self._ref_element.n_of_dofs()
-        lhs = sp.zeros((ndofs, ndofs))
-
-        for qp in qp_data:
-            shape_function_values = self._shape_function_values(qp.point)
-            shape_function_gradients = self._shape_function_gradients(qp.point)
-            function_value = self._function_value(dof_values, qp.point)
-            function_gradient = self._function_gradient(dof_values, qp.point)
-            physical_coords = self._mapping.map_point(qp.point)
-            material_lhs = self._material.compute_lhs(physical_coords, function_value, function_gradient)
-            JxW = self._mapping.jacobian_det(qp.point) * qp.weight
-            # shape probleme?
-            # Suboptimale Struktur des Codes: im Element taucht Wissen über die Bilinear-Form auf!
-            # Das sollte ausgelagert werden!
-
-            print(shape_function_gradients.shape, material_lhs.shape, shape_function_gradients.T.shape)
-            print(shape_function_gradients, material_lhs)
-            print(sp.dot(shape_function_gradients, material_lhs), sp.dot(shape_function_gradients, material_lhs).shape)
-            print(lhs.shape)
-            s = (ndofs, self._dim)
-            lhs += sp.dot(sp.dot(shape_function_gradients, material_lhs).reshape(s),
-                          shape_function_gradients.reshape(s).T) * JxW
-
-        return lhs
+    # def compute_rhs(self, mesh_entity, dof_values):
+    #     if self._current_entity_index != mesh_entity.index:
+    #         self._clear_cache()
+    #         self._current_entity_index = mesh_entity.index
+    #
+    #     if type(mesh_entity) != Edge:
+    #         raise Exception("ContinuousLagrange1d operates on edges!")
+    #
+    #     # setup ref. element and mapping
+    #     self._setup_shape(mesh_entity)
+    #
+    #     # compute values at quadrature points
+    #     ndofs = self._ref_element.n_of_dofs()
+    #     rhs = sp.zeros(ndofs)
+    #
+    #     rhs_contraction = self._material.contraction_data().rhs
+    #
+    #     # quadrature loop
+    #     for qp in self._quadrature.quadrature_data():
+    #         material_rhs = self._material.compute_rhs(self._point_data(dof_values, qp.point))
+    #
+    #         if rhs_contraction == ContractionData.func:
+    #             shape_function_values = self._shape_function_values(qp.point)
+    #             rhs += \
+    #                 sp.dot(shape_function_values, material_rhs)\
+    #                 .reshape((ndofs,)) \
+    #                 * self._jxw(qp)
+    #
+    #         elif rhs_contraction == ContractionData.grad:
+    #             shape_function_gradients = self._shape_function_gradients(qp.point)
+    #             rhs += \
+    #                 sp.dot(shape_function_gradients, material_rhs)\
+    #                 .reshape((ndofs,)) \
+    #                 * self._jxw(qp)
+    #         else:
+    #             raise NotImplementedError("rhs_contraction \"{:s} is not implemented.\""
+    #                                       .format(rhs_contraction))
+    #
+    #     return rhs
+    #
+    # def compute_lhs(self, mesh_entity, dof_values):
+    #     if self._current_entity_index != mesh_entity.index:
+    #         self._clear_cache()
+    #         self._current_entity_index = mesh_entity.index
+    #
+    #     if type(mesh_entity) != Edge:
+    #         raise Exception("ContinuousLagrange1d operates on edges!")
+    #
+    #     # setup ref. element and mapping
+    #     self._setup_shape(mesh_entity)
+    #
+    #     # compute values at quadrature points
+    #     ndofs = self._ref_element.n_of_dofs()
+    #     shape = (ndofs, self._dim)  # in 1d, shape of value and gradient is the same!
+    #     lhs = sp.zeros((ndofs, ndofs))
+    #
+    #     lhs_contraction = self._material.contraction_data().lhs
+    #
+    #     # quadrature loop
+    #     for qp in self._quadrature.quadrature_data():
+    #         material_lhs = self._material.compute_lhs(self._point_data(dof_values, qp.point))
+    #
+    #         if lhs_contraction == ContractionData.func:
+    #             shape_function_values = self._shape_function_values(qp.point)
+    #             lhs += \
+    #                 sp.dot(sp.dot(shape_function_values, material_lhs)
+    #                        .reshape(shape),
+    #                        shape_function_values.reshape(shape).T) \
+    #                 * self._jxw(qp)
+    #
+    #         elif lhs_contraction == ContractionData.grad:
+    #             shape_function_gradients = self._shape_function_gradients(qp.point)
+    #             lhs += \
+    #                 sp.dot(sp.dot(shape_function_gradients, material_lhs)
+    #                        .reshape(shape),
+    #                        shape_function_gradients.reshape(shape).T) \
+    #                 * self._jxw(qp)
+    #         else:
+    #             raise NotImplementedError("lhs_contraction \"{:s} is not implemented.\""
+    #                                       .format(lhs_contraction))
+    #
+    #     return lhs
