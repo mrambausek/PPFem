@@ -1,3 +1,19 @@
+# PPFem: A educational finite element code
+# Copyright (C) 2015  Matthias Rambausek
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import scipy as sp
 
 
@@ -89,7 +105,7 @@ class FunctionSpace(object):
         return LocalFunctionSpace(self.get_element(mesh_entity))
 
     def function_dim(self):
-        self._element.value_dim()
+        self._element.value_dimension()
 
     def function_space_dim(self):
         return self.number_of_dofs
@@ -106,16 +122,16 @@ class LocalFunctionSpace(object):
         self._element = element
 
     def interpolate_function(self, function):
-        return self._element.interpolate_funtion(function)
+        return self._element.interpolate_function(function)
 
-    def shape_function_values(self, point):
-        self._element.shape_function_values(point)
+    def shape_function_values(self, ref_point):
+        return self._element.shape_function_values(ref_point)
 
-    def shape_function_gradients(self, point):
-        self._element.shape_function_gradients(point)
+    def shape_function_gradients(self, ref_point):
+        return self._element.shape_function_gradients(ref_point)
 
     def physical_coords(self, ref_point):
-        self._element.phyical_coords(ref_point)
+        return self._element.physical_coords(ref_point)
 
     def jxw(self, qp_data):
-        self._element.jxw(qp_data)
+        return self._element.jxw(qp_data)

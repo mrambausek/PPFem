@@ -1,3 +1,20 @@
+# PPFem: A educational finite element code
+# Copyright (C) 2015  Matthias Rambausek
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 from ppfem.fem.physical_element import PhysicalElement
 from ppfem.elements.lagrange_elements import LagrangeLine
 from ppfem.geometry.mapping import FEMapping
@@ -39,31 +56,31 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
     def _clear_cache(self):
         self._cache = {}
 
-    def _mapping_is_valid(self, point):
+    def _mapping_is_valid(self, ref_point):
         raise NotImplementedError("This kind of check is not implemented yet.")
 
     def interpolate_function(self, function):
         return self._ref_element.interpolate_function(function, self._mapping)
 
-    def function_value(self, dof_values, point):
-        return self._ref_element.function_value(dof_values, point)
+    def function_value(self, dof_values, ref_point):
+        return self._ref_element.function_value(dof_values, ref_point)
 
-    def function_gradient(self, dof_values, point):
-        J_inv = self._mapping.inverse_jacobian(point)
-        return self._ref_element.function_gradient(dof_values, point, J_inv)
+    def function_gradient(self, dof_values, ref_point):
+        J_inv = self._mapping.inverse_jacobian(ref_point)
+        return self._ref_element.function_gradient(dof_values, ref_point, J_inv)
 
-    def shape_function_values(self, point):
-        return self._ref_element.basis_function_values(point)
+    def shape_function_values(self, ref_point):
+        return self._ref_element.basis_function_values(ref_point)
 
-    def shape_function_gradients(self, point):
-        J_inv = self._mapping.inverse_jacobian(point)
-        return self._ref_element.basis_function_gradients(point, J_inv)
+    def shape_function_gradients(self, ref_point):
+        J_inv = self._mapping.inverse_jacobian(ref_point)
+        return self._ref_element.basis_function_gradients(ref_point, J_inv)
 
     def physical_coords(self, ref_point):
         return self._mapping.map_point(ref_point)
 
-    def director(self, point):
-        J = self._mapping.jacobian(point)
+    def director(self, ref_point):
+        J = self._mapping.jacobian(ref_point)
         return J/sp.linalg.norm(J)
 
     def jxw(self, qp_data):

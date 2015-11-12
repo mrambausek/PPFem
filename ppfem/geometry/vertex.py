@@ -1,3 +1,19 @@
+# PPFem: A educational finite element code
+# Copyright (C) 2015  Matthias Rambausek
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from ppfem.geometry.point import Point
 
 
@@ -15,12 +31,3 @@ class Vertex(Point):
 
     def is_part_of(self, mesh_entitiy):
         return self.index in mesh_entitiy.global_vertex_indices()
-
-    # def associate_dof_number(self, dof_number):
-    #     self._associated_dof_numbers.append(dof_number)
-    #
-    # def set_associated_dof_numbers(self, global_dof_numbers):
-    #     self._associated_dof_numbers = global_dof_numbers
-    #
-    # def associated_dof_numbers(self):
-    #     return self._associated_dof_numbers
