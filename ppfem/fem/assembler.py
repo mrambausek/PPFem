@@ -46,12 +46,13 @@ class Assembler(abc.ABC):
 
 
 class EvalData(object):
-    def __init__(self, local_test_space, local_trial_space, local_state, mapping, quadrature):
+    def __init__(self, local_test_space, local_trial_space, local_state, mapping, quadrature, params):
         self.local_test_space = local_test_space
         self.local_trial_space = local_trial_space
         self.local_state = local_state
         self.mapping = mapping
         self.quadrature = quadrature
+        self.params = params
 
 
 class DefaultAssembler(Assembler):
@@ -66,23 +67,24 @@ class DefaultAssembler(Assembler):
         else:
             self._mapping = self._trial_function_space.get_mapping()
 
-    def get_eval_data(self, solution, mesh_entity):
+    def get_eval_data(self, mesh_entity, solution, params):
         return EvalData(self._test_function_space.localize(mesh_entity),
                         self._trial_function_space.localize(mesh_entity),
                         solution.localize(mesh_entity),
                         self._quadrature,
-                        self._mapping.localize(mesh_entity))
+                        self._mapping.localize(mesh_entity),
+                        params)
 
     def assemble_rhs(self, global_rhs, global_state, params):
         for e in self._trial_function_space.mesh_entity_iterator():
             eval_data = self.get_eval_data(global_state, e)
-            f = self.local_linear_form(eval_data, params)
+            f = self.local_linear_form(eval_data)
             self._assemble_local_linear_form(f, e.index, global_rhs)
 
     def assemble_lhs(self, global_lhs, global_state, params):
         for e in self._trial_function_space.mesh_entity_iterator():
             eval_data = self.get_eval_data(global_state, e)
-            a = self.local_bilinear_form(eval_data, params)
+            a = self.local_bilinear_form(eval_data)
             self._assemble_local_bilinear_form(a, e.index, global_lhs)
 
     def get_sparsity(self):

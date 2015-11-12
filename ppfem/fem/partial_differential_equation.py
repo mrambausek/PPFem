@@ -20,9 +20,9 @@ import abc
 class PDE(abc.ABC):
 
     @abc.abstractmethod
-    def local_linear_form(self, eval_data, params):
+    def local_linear_form(self, eval_data):
         raise Exception("Abstract method called!")
 
     @abc.abstractmethod
-    def local_bilinear_form(self, eval_data, params):
+    def local_bilinear_form(self, eval_data):
         raise Exception("Abstract method called!")

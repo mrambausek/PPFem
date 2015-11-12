@@ -20,12 +20,11 @@ import scipy as sp
 
 class Laplace(PDE):
 
-    def __init__(self, test_function_space, trial_function_space, quadrature, dim=1):
-        PDE.__init__(self, test_function_space, trial_function_space, quadrature)
+    def __init__(self, dim=1):
         self._dim = dim
 
-    def local_linear_form(self, params):
+    def local_linear_form(self, eval_data):
         raise NotImplementedError("Implement me!")
 
-    def local_bilinear_form(self, params):
+    def local_bilinear_form(self, eval_data):
         raise NotImplementedError("Implement me!")
