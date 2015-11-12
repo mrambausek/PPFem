@@ -1,35 +1,15 @@
-import abc
+from ppfem.fem.assembler import Assembler, find_index_pair
 import scipy as sp
-import scipy.sparse as sparse
 from ppfem.fem.dof import DOF
 
 
-class LinearizedProblem(abc.ABC):
-    def __init__(self):
-        pass
-
-    @abc.abstractmethod
-    def get_sparsity(self, sp_format='coo', mesh_entities=None):
-        raise Exception("Abstract method called!")
-
-    @abc.abstractmethod
-    def assemble_rhs(self, global_rhs):
-        raise Exception("Abstract method called!")
-
-    @abc.abstractmethod
-    def assemble_lhs(self, global_lhs):
-        raise Exception("Abstract method called!")
-
-
-class FEAPStyleProblem(LinearizedProblem):
+class FiniteElementModel(Assembler):
     smf_coo = 0
     smf_coo_condensed = 1
 
-    def __init__(self, mesh, element_map, dgl_map, quadrature_map, boundary_conditions):
+    def __init__(self, mesh, dgl_map, boundary_conditions):
         self._mesh = mesh
-        self._element_map = element_map
         self._dgl_map = dgl_map
-        self._quadrature_map = quadrature_map
         self._boundary_conditions = boundary_conditions
         self._dof_list = []
         self._element_dof_map = {}
@@ -51,7 +31,7 @@ class FEAPStyleProblem(LinearizedProblem):
     def _get_mesh_entities(self):
         mesh_entities = None
         if self._mesh.topological_dim() == 1:
-            mesh_entities = self._mesh.line_elements()
+            mesh_entities = self._mesh.lines()
         elif self._mesh.topological_dim() == 2:
             mesh_entities = self._mesh.faces()
         elif self._mesh.topological_dim() == 3:
@@ -74,17 +54,6 @@ class FEAPStyleProblem(LinearizedProblem):
         if vertex is not None:
             self._vertex_dof_map[vertex] += new_dofs
         return new_dofs, n
-
-    @staticmethod
-    def _find_index_pair(pair, data):
-        d_i = data[0]
-        d_j = data[1]
-        for i in range(len(data[0])):
-            p_global = [d_i[i], d_j[i]]
-
-            if p_global[0] == pair[0] and p_global[1] == pair[1]:
-                return True
-        return False
 
     def _generate_element_vertex_dofs(self, element, insert_at, visited_vertices):
         vertex_dofs_per_element = element.number_of_global_dofs_per_vertex()
@@ -142,7 +111,7 @@ class FEAPStyleProblem(LinearizedProblem):
             rows_add, cols_add = [], []
             row_candidates, col_candidates = m.T.flatten().tolist(), m.flatten().tolist()
             for p_local in zip(row_candidates, col_candidates):
-                if not self._find_index_pair(p_local, global_data):
+                if not find_index_pair(p_local, global_data):
                     rows_add.append(p_local[0])
                     cols_add.append(p_local[1])
 
@@ -167,28 +136,20 @@ class FEAPStyleProblem(LinearizedProblem):
         return sp.array(global_coo_row_indices, dtype=sp.int64), sp.array(global_coo_col_indices, dtype=sp.int64)
 
     def _get_element(self, mesh_entity):
-        e = self._element_map[mesh_entity.domain_indicator]
-        e.set_mesh_entity(mesh_entity)
-        return e
+        return self._dgl_map[mesh_entity.domain_indicator].element(mesh_entity)
 
     def set_global_state(self, new_vector):
         self._global_state_vector = new_vector
 
-    # def _get_element_rhs(self, element):
-    #     dof_values = self._get_element_dof_values_array(element)
-    #     return self._element.compute_rhs(element, dof_values)
-
-    # def _get_element_matrix(self, element):
-    #     dof_values = self._get_element_dof_values_array(element)
-    #     return self._element.compute_lhs(element, dof_values)
+    def _extract_element_dof_values(self, element_index):
+        return self._global_state_vector[self._element_dof_map[element_index]]
 
     def _assemble_local_rhs(self, mesh_entity, global_rhs):
         di = mesh_entity.domain_indicator
-        element = self._get_element(mesh_entity)
-        quadrature = self._quadrature_map[di]
         dgl = self._dgl_map[di]
+        dof_values = self._extract_element_dof_values(mesh_entity.index)
 
-        r = dgl.linear_form(element, quadrature, None)
+        r = dgl.linear_form(mesh_entity, dof_values, None)
         dofs = self._get_element_dof_index_array(mesh_entity.index)
         i = 0
         for I in dofs:
@@ -197,11 +158,10 @@ class FEAPStyleProblem(LinearizedProblem):
 
     def _assemble_local_matrix(self, mesh_entity, global_lhs):
         di = mesh_entity.domain_indicator
-        element = self._get_element(mesh_entity)
-        quadrature = self._quadrature_map[di]
         dgl = self._dgl_map[di]
+        dof_values = self._extract_element_dof_values(mesh_entity.index)
 
-        k = dgl.bilinear_form(element, quadrature, None)
+        k = dgl.bilinear_form(mesh_entity, dof_values, None)
         dofs = self._get_element_dof_index_array(mesh_entity.index)
 
         i = 0
@@ -219,9 +179,9 @@ class FEAPStyleProblem(LinearizedProblem):
         if mesh_entities is None:
             mesh_entities = self._get_mesh_entities()
 
-        if sp_format == FEAPStyleProblem.smf_coo:
+        if sp_format == FiniteElementModel.smf_coo:
             return self._get_sparsity_coo(mesh_entities)
-        elif sp_format == FEAPStyleProblem.smf_coo_condensed:
+        elif sp_format == FiniteElementModel.smf_coo_condensed:
             return self._get_sparsity_coo(mesh_entities, condense=True)
 
     def assemble_rhs(self, global_rhs):

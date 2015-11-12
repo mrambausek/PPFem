@@ -1,6 +1,15 @@
 import abc
 
 
+class LazyEval(object):
+    def __init__(self, func, args):
+        self._func = func
+        self._args = args
+
+    def __call__(self, *args, **kwargs):
+        return self._func(*self._args)
+
+
 class PhysicalElement(abc.ABC):
 
     def __init__(self):
@@ -16,6 +25,14 @@ class PhysicalElement(abc.ABC):
 
     @abc.abstractmethod
     def number_of_global_dofs(self):
+        raise Exception('Abstract method called!')
+
+    @abc.abstractmethod
+    def topological_dimension(self):
+        raise Exception('Abstract method called!')
+
+    @abc.abstractmethod
+    def value_dimension(self):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod

@@ -1,5 +1,5 @@
 from ppfem.geometry.point import Point
-from ppfem.geometry.line_element import LineElement
+from ppfem.geometry.line import Line
 from ppfem.geometry.face import Face
 from ppfem.geometry.cell import Cell
 
@@ -23,8 +23,8 @@ class Mesh(object):
     def add_face(self, vertex_numbers, number):
         Mesh._add_entity(Face(vertex_numbers, number, self), number, self._face_dict, "face dict")
 
-    def add_line_element(self, vertex_numbers, number):
-        Mesh._add_entity(LineElement(vertex_numbers, number, self), number, self._line_elem_dict, "edge dict")
+    def add_line(self, vertex_numbers, number):
+        Mesh._add_entity(Line(vertex_numbers, number, self), number, self._line_elem_dict, "edge dict")
 
     def add_cell(self, vertex_numbers, number):
         Mesh._add_entity(Cell(vertex_numbers, number, self), number, self._cell_dict, "cell dict")
@@ -47,7 +47,7 @@ class Mesh(object):
     def faces(self):
         return self._face_dict.values()
 
-    def line_elements(self):
+    def lines(self):
         return self._line_elem_dict.values()
 
     def topological_dim(self):

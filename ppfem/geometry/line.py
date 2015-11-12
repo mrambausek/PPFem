@@ -1,7 +1,7 @@
 from ppfem.geometry.mesh_entity import MeshEntity
 
 
-class LineElement(MeshEntity):
+class Line(MeshEntity):
 
     def __init__(self, vertices, index, mesh):
         MeshEntity.__init__(self, vertices, index, mesh)

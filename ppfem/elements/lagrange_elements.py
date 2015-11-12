@@ -1,13 +1,13 @@
 from ppfem.geometry.point import Point
-from ppfem.elements.base import FiniteElement
+from ppfem.elements.base import ReferenceElement
 from ppfem.elements.lagrange_basis import LagrangeBasis
 import numpy as np
 
 
-class LagrangeElement(FiniteElement):
+class LagrangeElement(ReferenceElement):
 
     def __init__(self, degree, dimension=1):
-        FiniteElement.__init__(self, degree, dimension)
+        ReferenceElement.__init__(self, degree, dimension)
 
     def interpolate_function(self, function, mapping=None):
         """
@@ -19,6 +19,27 @@ class LagrangeElement(FiniteElement):
             points = self.get_support_points()
 
         return np.array([function(p) for p in points])
+
+    def function_value(self, dof_values, point):
+        # first array axis corresponds to basis function!
+        if self._dimension == 1:
+            return np.dot(self.basis_function_values(point).reshape(1, self._n_bases), dof_values)
+        else:
+            return np.einsum('ijk,ijk->jk', dof_values, self.basis_function_values(point))
+
+    def function_gradient(self, dof_values, point, jacobian_inv=None):
+        # first array axis corresponds to basis function!
+        if self._dimension == 1:
+            return np.dot(self.basis_function_gradients(point, jacobian_inv=jacobian_inv).reshape(dof_values.shape).T,
+                          dof_values)
+        elif self.space_dim() > 1:
+            return np.einsum('ijk,ijkl->jkl',
+                             dof_values,
+                             self.basis_function_gradients(point, jacobian_inv=jacobian_inv))
+        elif self.space_dim() == 1:
+            return np.einsum('ijk,ijk->jk',
+                             dof_values,
+                             self.basis_function_gradients(point, jacobian_inv=jacobian_inv))
 
 
 class LagrangeLine(LagrangeElement):

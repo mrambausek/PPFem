@@ -2,6 +2,7 @@ import abc
 import scipy as sp
 import scipy.linalg as spl
 
+
 class Mapping(abc.ABC):
 
     def __init__(self):
