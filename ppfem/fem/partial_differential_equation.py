@@ -18,6 +18,10 @@ import abc
 from ppfem.fem.assembler import find_index_pair, Assembler
 
 
+# TODO: abstrahieren -> verschiedene Implementierungen zulassen...
+# ... verschiedene Quadratur/Mapping-Regeln
+# ... am besten über localize -> mesh_entity hält informationen "quadratur_index" und "mapping_index"
+
 class PDE(Assembler):
     def __init__(self, test_function_space, trial_function_space, quadrature, fe_functions=None):
         self._test_function_space = test_function_space

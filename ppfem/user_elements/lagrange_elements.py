@@ -47,6 +47,15 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
         self._mapping = FEMapping(self._ref_element)
         self._mapping.set_mesh_entity(mesh_entity)
 
+    def set_mapping(self, mapping):
+        raise Exception("Isoparametric element sets mapping internally!")
+
+    def get_mapping(self):
+        return self._mapping
+
+    def get_reference_element(self):
+        return self._ref_element
+
     def topological_dimension(self):
         return 1
 

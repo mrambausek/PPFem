@@ -23,10 +23,12 @@ class MeshEntity(abc.ABC):
     def __init__(self, vertices, index, mesh):
         self._vertices = tuple(vertices)
         self._number_of_vertices = len(self._vertices)
+        self._mesh = mesh
         self.index = index
         self.domain_indicator = 0
         self.boundary_indicator = None
-        self._mesh = mesh
+        self.mapping_index = None
+        self.quadrature_index = None
 
     def global_vertex_indices(self):
         return self._vertices

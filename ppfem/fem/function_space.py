@@ -19,7 +19,7 @@ import scipy as sp
 
 class FunctionSpace(object):
 
-    def __init__(self, element, mesh=None, subdomain=None):
+    def __init__(self, element, mesh=None, subdomain=None, mapping=None):
         self._element = element
         self._mesh = mesh
         self._subdomain = subdomain
@@ -30,6 +30,9 @@ class FunctionSpace(object):
         self.storage_ready = False
         if mesh is not None:
             self._setup_storage()
+
+        if mapping is not None:
+            self._element.set_mapping(mapping)
 
     def _setup_storage(self):
         for v in self._mesh.vertices():

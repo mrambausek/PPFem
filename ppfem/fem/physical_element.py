@@ -57,6 +57,18 @@ class PhysicalElement(abc.ABC):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod
+    def set_mapping(self, mapping):
+        raise Exception('Abstract method called!')
+
+    @abc.abstractmethod
+    def get_mapping(self):
+        raise Exception('Abstract method called!')
+
+    @abc.abstractmethod
+    def get_reference_element(self):
+        raise Exception('Abstract method called!')
+
+    @abc.abstractmethod
     def interpolate_function(self, mesh_entity):
         raise Exception('Abstract method called!')
 
