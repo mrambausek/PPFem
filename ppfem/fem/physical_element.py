@@ -40,6 +40,10 @@ class PhysicalElement(abc.ABC):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod
+    def interpolate_function(self, mesh_entity):
+        raise Exception('Abstract method called!')
+
+    @abc.abstractmethod
     def function_value(self, dof_values, point):
         raise Exception('Abstract method called!')
 
@@ -60,7 +64,7 @@ class PhysicalElement(abc.ABC):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod
-    def jxw(self, quadrature_point):
+    def jxw(self, qp_data):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod

@@ -17,13 +17,13 @@ class Assembler(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_sparsity(self, sp_format='coo', mesh_entities=None):
+    def get_sparsity(self):
         raise Exception("Abstract method called!")
 
     @abc.abstractmethod
-    def assemble_rhs(self, global_rhs):
+    def assemble_rhs(self, global_rhs, params):
         raise Exception("Abstract method called!")
 
     @abc.abstractmethod
-    def assemble_lhs(self, global_lhs):
+    def assemble_lhs(self, global_lhs, params):
         raise Exception("Abstract method called!")

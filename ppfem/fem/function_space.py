@@ -3,15 +3,17 @@ import scipy as sp
 
 class FunctionSpace(object):
 
-    def __init__(self, mesh, element_map):
-        self._element_map = element_map
+    def __init__(self, element, mesh=None, subdomain=None):
+        self._element = element
         self._mesh = mesh
+        self._subdomain = subdomain
         self._element_dof_map = {}
         self._vertex_dof_map = {}
         self.number_of_dofs = None
 
         self.storage_ready = False
-        self._setup_storage()
+        if mesh is not None:
+            self._setup_storage()
 
     def _setup_storage(self):
         for v in self._mesh.vertices():
@@ -20,17 +22,15 @@ class FunctionSpace(object):
         self.number_of_dofs = self._generate_assembly_data()
         self.storage_ready = True
 
-    def get_mesh_entities(self):
-        mesh_entities = None
-        if self._mesh.topological_dim() == 1:
-            mesh_entities = self._mesh.lines()
-        elif self._mesh.topological_dim() == 2:
-            mesh_entities = self._mesh.faces()
-        elif self._mesh.topological_dim() == 3:
-            mesh_entities = self._mesh.vertices()
-        else:
-            raise NotImplementedError("Topological dimension of mesh must be 1, 2 or 3.")
-        return mesh_entities
+    def set_mesh(self, mesh, sub_domain=None):
+        self._mesh = mesh
+        self._subdomain = sub_domain
+        self._setup_storage()
+
+    def mesh_entity_iterator(self):
+        if self._subdomain is None:
+            return self._mesh.get_mesh_entities()
+        return filter(lambda e: e.domain_indicator == self._subdomain, self._mesh.get_mesh_entities())
 
     def _generate_element_vertex_dofs(self, element, first_dof_index, visited_vertices):
         vertex_dofs_per_element = element.number_of_global_dofs_per_vertex()
@@ -57,7 +57,10 @@ class FunctionSpace(object):
         visited_vertices = []
         first_dof_index = 0
 
-        for e in self.get_mesh_entities():
+        for e in self._mesh.get_mesh_entities():
+            if self._subdomain is not None and e.domain_indicator != self._subdomain:
+                continue
+
             element = self.get_element(e)
 
             dofs = []
@@ -77,24 +80,42 @@ class FunctionSpace(object):
         return sp.array(self._element_dof_map[element_index], dtype=sp.int64)
 
     def get_element(self, mesh_entity):
-        elmt = self._element_map[mesh_entity.domain_indicator]
-        elmt.set_mesh_entity(mesh_entity)
-        return elmt
+        if self._subdomain is not None and mesh_entity.domain_indicator != self._subdomain:
+            raise Exception("Mesh entity in wrong subdomain!")
+        self._element.set_mesh_entity(mesh_entity)
+        return self._element
+
+    def localize(self, mesh_entity):
+        return LocalFunctionSpace(self.get_element(mesh_entity))
 
     def function_dim(self):
-        pass
+        self._element.value_dim()
 
     def function_space_dim(self):
-        pass
+        return self.number_of_dofs
+
+    def interpolate_function(self, function):
+        global_dofs = sp.zeros(self.number_of_dofs)
+        for e in self.mesh_entity_iterator():
+            global_dofs[self._element_dof_map[e.index]] = self.localize(e).interpolate_function(function)
+        return global_dofs
 
 
-class TrialFunctionSpace(FunctionSpace):
-    def __init__(self, mesh, element_map):
-        FunctionSpace.__init__(mesh, element_map)
-        self._global_dof_vector = sp.zeros(self.number_of_dofs)
+class LocalFunctionSpace(object):
+    def __init__(self, element):
+        self._element = element
 
-    def set_global_dofs(self, new_vector):
-        self._global_dof_vector = new_vector
+    def interpolate_function(self, function):
+        return self._element.interpolate_funtion(function)
 
-    def get_element_dof_values_array(self, element_index):
-        self._global_dof_vector[self._element_dof_map[element_index]]
+    def shape_function_values(self, point):
+        self._element.shape_function_values(point)
+
+    def shape_function_gradients(self, point):
+        self._element.shape_function_gradients(point)
+
+    def physical_coords(self, ref_point):
+        self._element.phyical_coords(ref_point)
+
+    def jxw(self, qp_data):
+        self._element.jxw(qp_data)

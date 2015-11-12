@@ -42,6 +42,9 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
     def _mapping_is_valid(self, point):
         raise NotImplementedError("This kind of check is not implemented yet.")
 
+    def interpolate_function(self, function):
+        return self._ref_element.interpolate_function(function, self._mapping)
+
     def function_value(self, dof_values, point):
         return self._ref_element.function_value(dof_values, point)
 
@@ -63,8 +66,8 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
         J = self._mapping.jacobian(point)
         return J/sp.linalg.norm(J)
 
-    def jxw(self, qp):
-        return self._mapping.jacobian_det(qp.point) * qp.weight
+    def jxw(self, qp_data):
+        return self._mapping.jacobian_det(qp_data.point) * qp_data.weight
 
     def global_vertex_indices(self):
         return self._mesh_entity.global_vertex_indices()

@@ -17,6 +17,16 @@ class Mesh(object):
         else:
             self._topological_dim = topological_dim
 
+    def get_mesh_entities(self):
+        if self.topological_dim() == 1:
+            return self.lines()
+        elif self.topological_dim() == 2:
+            return self.faces()
+        elif self.topological_dim() == 3:
+            return self.vertices()
+        else:
+            raise NotImplementedError("Topological dimension of mesh must be 1, 2 or 3.")
+
     def add_vertex(self, vertex):
         Mesh._add_entity(vertex, vertex.global_index(), self._vertex_dict, "vertex dict")
 
