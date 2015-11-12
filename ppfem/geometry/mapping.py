@@ -52,6 +52,10 @@ class FEMapping(Mapping):
     def set_mesh_entity(self, mesh_entity):
         self._mesh_entity = mesh_entity
 
+    def localize(self, mesh_entity):
+        self.set_mesh_entity(mesh_entity)
+        return self
+
     def clear_mesh_entity(self):
         self._mesh_entity = None
 

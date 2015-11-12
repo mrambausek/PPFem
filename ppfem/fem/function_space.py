@@ -46,6 +46,9 @@ class FunctionSpace(object):
         self._subdomain = sub_domain
         self._setup_storage()
 
+    def get_mapping(self):
+        return self._element.get_mapping()
+
     def mesh_entity_iterator(self):
         if self._subdomain is None:
             return self._mesh.get_mesh_entities()
