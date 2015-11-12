@@ -147,7 +147,7 @@ class FiniteElementModel(Assembler):
     def _assemble_local_rhs(self, mesh_entity, global_rhs):
         di = mesh_entity.domain_indicator
         dgl = self._dgl_map[di]
-        dof_values = self._extract_element_dof_values(mesh_entity.index)
+        dof_values = self._get_element_dof_values_array(mesh_entity.index)
 
         r = dgl.linear_form(mesh_entity, dof_values, None)
         dofs = self._get_element_dof_index_array(mesh_entity.index)
@@ -159,7 +159,7 @@ class FiniteElementModel(Assembler):
     def _assemble_local_matrix(self, mesh_entity, global_lhs):
         di = mesh_entity.domain_indicator
         dgl = self._dgl_map[di]
-        dof_values = self._extract_element_dof_values(mesh_entity.index)
+        dof_values = self._get_element_dof_values_array(mesh_entity.index)
 
         k = dgl.bilinear_form(mesh_entity, dof_values, None)
         dofs = self._get_element_dof_index_array(mesh_entity.index)
