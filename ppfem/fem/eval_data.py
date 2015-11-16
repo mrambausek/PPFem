@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
 class EvalData(object):
     def __init__(self, attr_dict):
         self.add_attributes(attr_dict)

@@ -107,6 +107,9 @@ class FunctionSpace(object):
         self._element.set_mesh_entity(mesh_entity)
         return self._element
 
+    def get_number_of_global_element_dofs(self, mesh_entity):
+        return self.get_element(mesh_entity).number_of_global_dofs()
+
     def localize(self, mesh_entity):
         return LocalFunctionSpace(self.get_element(mesh_entity))
 

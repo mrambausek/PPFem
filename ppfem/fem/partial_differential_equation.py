@@ -14,15 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import abc
+import ppfem.fem.form as form
 
 
-class PDE(abc.ABC):
-
-    @abc.abstractmethod
-    def local_linear_form(self, eval_data):
-        raise Exception("Abstract method called!")
-
-    @abc.abstractmethod
-    def local_bilinear_form(self, eval_data):
-        raise Exception("Abstract method called!")
+class PDE(form.LinearForm, form.BilinearForm):
+    def __init__(self, test_function_space, trial_function_space, quadrature):
+        form.LinearForm.__init__(self, test_function_space, quadrature)
+        form.BilinearForm.__init__(self, test_function_space, trial_function_space, quadrature)

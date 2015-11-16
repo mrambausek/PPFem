@@ -20,11 +20,41 @@ import scipy as sp
 
 class Laplace(PDE):
 
-    def __init__(self, dim=1):
+    def __init__(self, test_function_space, trial_function_space, quadrature, dim=1):
+        PDE.__init__(self, test_function_space, trial_function_space, quadrature)
         self._dim = dim
 
-    def local_linear_form(self, eval_data):
+    def implements_quadrature_on(self, entity_type=None):
         raise NotImplementedError("Implement me!")
 
-    def local_bilinear_form(self, eval_data):
+    def local_cell_linear_form(self, cell_eval_data_linear_form):
+        print(cell_eval_data_linear_form)
         raise NotImplementedError("Implement me!")
+
+    def local_cell_bilinear_form(self, cell_eval_data_bilinear_form):
+        print(cell_eval_data_bilinear_form)
+        raise NotImplementedError("Implement me!")
+
+    def local_exterior_face_linear_form(self, exterior_face_eval_data_linear_form):
+        raise NotImplementedError("Not needed!")
+
+    def local_exterior_face_bilinear_form(self, exterior_face_eval_data_bilinear_form):
+        raise NotImplementedError("Not needed!")
+
+    def local_interior_face_linear_form(self, interior_face_eval_data_linear_form):
+        raise NotImplementedError("Not needed!")
+
+    def local_interior_face_bilinear_form(self, interior_face_eval_data_bilinear_form):
+        raise NotImplementedError("Not needed!")
+
+    def get_exterior_face_eval_data_linear_form(self, mesh_entity, solution, params, mapping=None):
+        raise NotImplementedError("Not needed!")
+
+    def get_exterior_face_eval_data_bilinear_form(self, mesh_entity, solution, params, mapping=None):
+        raise NotImplementedError("Not needed!")
+
+    def get_interior_face_eval_data_linear_form(self, mesh_entities, solution, params, mapping=None):
+        raise NotImplementedError("Not needed!")
+
+    def get_interior_face_eval_data_bilinear_form(self, mesh_entities, solution, params, mapping=None):
+        raise NotImplementedError("Not needed!")
