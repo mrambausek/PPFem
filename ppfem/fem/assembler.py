@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import abc
-#import scipy as sp
+# import scipy as sp
 from ppfem.fem.form import LinearForm, BilinearForm
 
 
@@ -58,13 +58,13 @@ class DefaultSystemAssembler(Assembler):
                 self._bilinear_forms.append(f)
 
     def assemble_linear_forms(self, global_linear_form, global_state, params=None):
-        for l in self._linear_forms:
+        for L in self._linear_forms:
             # FIXME: check what the linear form actually provides!
             # TODO: implement assembly of interior and exterior face terms
-            for e in l.test_function_space.mesh_entity_iterator():
-                eval_data = l.get_cell_eval_data_linear_form(e, global_state, params)
-                f = l.local_cell_linear_form(eval_data)
-                self._assemble_local_cell_linear_form(f, e.index, global_linear_form)
+            for e in L.test_function_space.mesh_entity_iterator():
+                eval_data = L.get_cell_eval_data_linear_form(e, global_state, params)
+                local_linear_form = L.local_cell_linear_form(eval_data)
+                self._assemble_local_cell_linear_form(local_linear_form, e.index, global_linear_form)
 
     def assemble_bilinear_forms(self, global_bilinear_form, global_state, params=None):
         for a in self._bilinear_forms:
@@ -72,8 +72,8 @@ class DefaultSystemAssembler(Assembler):
             # TODO: implement assembly of interior and exterior face terms
             for e in a.trial_function_space.mesh_entity_iterator():
                 eval_data = a.get_cell_eval_data_bilinear_form(e, global_state, params)
-                a = a.local_cell_bilinear_form(eval_data)
-                self._assemble_local_cell_bilinear_form(a, e.index, global_bilinear_form)
+                local_bilinear_form = a.local_cell_bilinear_form(eval_data)
+                self._assemble_local_cell_bilinear_form(local_bilinear_form, e.index, global_bilinear_form)
 
     def get_sparsity(self):
         global_entries = ([], [])
@@ -94,15 +94,15 @@ class DefaultSystemAssembler(Assembler):
                     i += 1
         return global_entries
 
-    def _assemble_local_cell_linear_form(self, f, mesh_entity_index, global_rhs):
+    def _assemble_local_cell_linear_form(self, local_linear_form, mesh_entity_index, global_linear_form):
         dofs = self._test_function_space.get_element_dof_index_array(mesh_entity_index)
 
         i = 0
         for I in dofs:
-            global_rhs[I] = f[i]
+            global_linear_form[I] = local_linear_form[i]
             i += 1
 
-    def _assemble_local_cell_bilinear_form(self, a, mesh_entity_index, global_lhs):
+    def _assemble_local_cell_bilinear_form(self, local_bilinear_form, mesh_entity_index, global_bilinear_form):
         trial_dofs = self._trial_function_space.get_element_dof_index_array(mesh_entity_index)
         test_dofs = self._test_function_space.get_element_dof_index_array(mesh_entity_index)
 
@@ -110,6 +110,6 @@ class DefaultSystemAssembler(Assembler):
         for I in test_dofs:
             j = 0
             for J in trial_dofs:
-                global_lhs[I, J] = a[i, j]
+                global_bilinear_form[I, J] = local_bilinear_form[i, j]
                 j += 1
             i += 1
