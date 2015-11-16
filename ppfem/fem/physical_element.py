@@ -23,7 +23,7 @@ class LazyEval(object):
         self._func = func
         self._args = args
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self):
         return self._func(*self._args)
 
 
@@ -31,6 +31,9 @@ class PhysicalElement(abc.ABC):
 
     def __init__(self):
         pass
+
+    # TODO: add more methods for extraction of local DoF indices for sub-entities
+    # this might also make necessary storing related (additional) data in MeshEntity
 
     @abc.abstractmethod
     def number_of_global_dofs_per_vertex(self):
@@ -54,18 +57,6 @@ class PhysicalElement(abc.ABC):
 
     @abc.abstractmethod
     def set_mesh_entity(self, mesh_entity):
-        raise Exception('Abstract method called!')
-
-    @abc.abstractmethod
-    def set_mapping(self, mapping):
-        raise Exception('Abstract method called!')
-
-    @abc.abstractmethod
-    def get_mapping(self):
-        raise Exception('Abstract method called!')
-
-    @abc.abstractmethod
-    def get_reference_element(self):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod
@@ -111,3 +102,20 @@ class PhysicalElement(abc.ABC):
     @abc.abstractmethod
     def boundary_indicator(self):
         raise Exception('Abstract method called!')
+
+
+class MappedElement(PhysicalElement):
+    def __init__(self):
+        PhysicalElement.__init__(self)
+        self._mapping = None
+        self._ref_element = None
+
+    @abc.abstractmethod
+    def set_mapping(self, mapping):
+        raise Exception('Abstract method called!')
+
+    def get_mapping(self):
+        return self._mapping
+
+    def get_reference_element(self):
+        return self._ref_element

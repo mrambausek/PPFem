@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import ppfem.quadrature.quadrature as quadrature
+from . import quadrature
 from ppfem.geometry.point import Point
 from math import sqrt
 
@@ -31,7 +31,7 @@ class QGauss(quadrature.Quadrature):
             elif degree <= 3:
                 self._quadrature_data = [
                     quadrature.QPData(Point(-sqrt(1/3), index=0), 1.0),
-                    quadrature.QPData(Point( sqrt(1/3), index=1), 1.0)
+                    quadrature.QPData(Point(sqrt(1/3), index=1), 1.0)
                 ]
             elif degree <= 5:
                 self._quadrature_data = [
@@ -46,4 +46,3 @@ class QGauss(quadrature.Quadrature):
                 raise Exception("Gauss quadrature not implemented for degree \"{0:d}\"".format(degree))
         else:
             raise Exception("Gauss quadrature not implemented for shape \"{0:s}\"".format(shape))
-

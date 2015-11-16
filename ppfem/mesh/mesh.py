@@ -33,13 +33,17 @@ class Mesh(object):
         else:
             self._topological_dim = topological_dim
 
-    def get_mesh_entities(self):
-        if self.topological_dim() == 1:
-            return self.lines()
-        elif self.topological_dim() == 2:
-            return self.faces()
-        elif self.topological_dim() == 3:
+    def get_mesh_entities(self, topological_dim=None):
+        if topological_dim is None:
+            topological_dim = self.topological_dim()
+        if topological_dim == 0:
             return self.vertices()
+        elif topological_dim == 1:
+            return self.lines()
+        elif topological_dim == 2:
+            return self.faces()
+        elif topological_dim == 3:
+            return self.cells()
         else:
             raise NotImplementedError("Topological dimension of mesh must be 1, 2 or 3.")
 

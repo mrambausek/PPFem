@@ -26,7 +26,7 @@ class QPData(object):
 class Quadrature(abc.ABC):
 
     def __init__(self):
-        self._quadrature_data = None
+        self._quadrature_data = []
 
     def number_of_quadrature_points(self):
         return len(self._quadrature_data)

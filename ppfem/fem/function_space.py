@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import scipy as sp
+from ppfem.fem.physical_element import MappedElement
 
 
 class FunctionSpace(object):
@@ -47,11 +48,20 @@ class FunctionSpace(object):
         self._setup_storage()
 
     def get_mapping(self):
-        return self._element.get_mapping()
+        if isinstance(self._element, MappedElement):
+            return self._element.get_mapping()
+        else:
+            return None
 
-    def mesh_entity_iterator(self):
+    def get_mesh(self):
+        return self._mesh
+
+    def get_subdomain(self):
+        return self._subdomain
+
+    def mesh_entity_iterator(self, topological_dim=None):
         if self._subdomain is None:
-            return self._mesh.get_mesh_entities()
+            return self._mesh.get_mesh_entities(topological_dim=topological_dim)
         return filter(lambda e: e.domain_indicator == self._subdomain, self._mesh.get_mesh_entities())
 
     def _generate_element_vertex_dofs(self, element, first_dof_index, visited_vertices):
@@ -141,6 +151,3 @@ class LocalFunctionSpace(object):
 
     def physical_coords(self, ref_point):
         return self._element.physical_coords(ref_point)
-
-    def jxw(self, qp_data):
-        return self._element.jxw(qp_data)

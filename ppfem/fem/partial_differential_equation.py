@@ -18,6 +18,9 @@ import ppfem.fem.form as form
 
 
 class PDE(form.LinearForm, form.BilinearForm):
-    def __init__(self, test_function_space, trial_function_space, quadrature):
-        form.LinearForm.__init__(self, test_function_space, quadrature)
-        form.BilinearForm.__init__(self, test_function_space, trial_function_space, quadrature)
+    def __init__(self, test_function_space, trial_function_space, quadrature, fe_functions=None, mesh=None,
+                 subdomain=None):
+        form.LinearForm.__init__(self, test_function_space, quadrature, fe_functions=fe_functions, mesh=mesh,
+                                 subdomain=subdomain)
+        form.BilinearForm.__init__(self, test_function_space, trial_function_space, quadrature,
+                                   fe_functions=fe_functions, mesh=mesh, subdomain=subdomain)

@@ -15,17 +15,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from ppfem.fem.physical_element import PhysicalElement
+from ppfem.fem.physical_element import MappedElement
 from ppfem.elements.lagrange_elements import LagrangeLine
 from ppfem.geometry.mapping import FEMapping
 import scipy as sp
 
 
-class IsoparametricContinuousLagrange1d(PhysicalElement):
+class IsoparametricContinuousLagrange1d(MappedElement):
 
     def __init__(self, dim):
+        MappedElement.__init__(self)
         self._dim = dim
-        self._mapping = None
         self._ref_element = None
         self._mesh_entity = None
         self._cache = {}
@@ -49,12 +49,6 @@ class IsoparametricContinuousLagrange1d(PhysicalElement):
 
     def set_mapping(self, mapping):
         raise Exception("Isoparametric element sets mapping internally!")
-
-    def get_mapping(self):
-        return self._mapping
-
-    def get_reference_element(self):
-        return self._ref_element
 
     def topological_dimension(self):
         return 1

@@ -14,3 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import ppfem.fem.form as form
+
+
+class VariationalProblem(form.Functional, form.LinearForm, form.BilinearForm):
+    def __init__(self, test_function_space, trial_function_space, quadrature, fe_functions=None, mesh=None,
+                 subdomain=None):
+        form.Functional.__init__(self, test_function_space, quadrature, fe_functions=fe_functions, mesh=mesh,
+                                 subdomain=subdomain)
+        form.LinearForm.__init__(self, test_function_space, quadrature, fe_functions=fe_functions, mesh=mesh,
+                                 subdomain=subdomain)
+        form.BilinearForm.__init__(self, test_function_space, trial_function_space, quadrature,
+                                   fe_functions=fe_functions, mesh=mesh, subdomain=subdomain)

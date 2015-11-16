@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from ppfem.fem.partial_differential_equation import PDE
-import scipy as sp
+# import scipy as sp
 
 
 class Laplace(PDE):
@@ -47,14 +47,14 @@ class Laplace(PDE):
     def local_interior_face_bilinear_form(self, interior_face_eval_data_bilinear_form):
         raise NotImplementedError("Not needed!")
 
-    def get_exterior_face_eval_data_linear_form(self, mesh_entity, solution, params, mapping=None):
+    def get_exterior_face_eval_data_linear_form(self, mesh_entity, params=None, mapping=None):
         raise NotImplementedError("Not needed!")
 
-    def get_exterior_face_eval_data_bilinear_form(self, mesh_entity, solution, params, mapping=None):
+    def get_exterior_face_eval_data_bilinear_form(self, mesh_entity, params=None, mapping=None):
         raise NotImplementedError("Not needed!")
 
-    def get_interior_face_eval_data_linear_form(self, mesh_entities, solution, params, mapping=None):
+    def get_interior_face_eval_data_linear_form(self, mesh_entities, params=None, mapping=None):
         raise NotImplementedError("Not needed!")
 
-    def get_interior_face_eval_data_bilinear_form(self, mesh_entities, solution, params, mapping=None):
+    def get_interior_face_eval_data_bilinear_form(self, mesh_entities, params=None, mapping=None):
         raise NotImplementedError("Not needed!")

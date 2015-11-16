@@ -14,3 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from .cell import Cell
+from .vertex import Vertex
+from .face import Face
+from .line import Line
+from .mapping import Mapping
+from .point import Point

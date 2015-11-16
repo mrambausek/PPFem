@@ -13,3 +13,23 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import ppfem.user_elements
+import ppfem.user_equations
+import ppfem.quadrature
+
+from ppfem.user_elements import *
+from ppfem.user_equations import *
+from ppfem.quadrature import *
+
+from ppfem.mesh.mesh import Mesh
+from ppfem.geometry import Point, Vertex, Line, Face, Cell, Mapping
+from ppfem.fem.assembler import DefaultSystemAssembler
+from ppfem.fem.form import Functional, LinearForm, BilinearForm, FormCollection
+from ppfem.fem.function import FEFunction
+from ppfem.fem.function_space import FunctionSpace
+
+__all__ = ["Mesh", "Point", "Line", "Vertex", "Face", "Cell", "Mapping", "FunctionSpace", "Functional",
+           "LinearForm", "BilinearForm", "FormCollection", "DefaultSystemAssembler", "FEFunction"]
+
+__all__ += ppfem.user_elements.__all__ + ppfem.quadrature.__all__ + ppfem.user_equations.__all__
