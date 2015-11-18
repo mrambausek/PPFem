@@ -1,4 +1,4 @@
-# PPFem: A educational finite element code
+# PPFem: An educational finite element code
 # Copyright (C) 2015  Matthias Rambausek
 #
 # This program is free software: you can redistribute it and/or modify
@@ -23,8 +23,8 @@ import scipy as sp
 
 class IsoparametricContinuousLagrange1d(MappedElement):
 
-    def __init__(self, dim):
-        MappedElement.__init__(self)
+    def __init__(self, dim, is_sub_element=False):
+        MappedElement.__init__(self, is_sub_element=is_sub_element)
         self._dim = dim
         self._ref_element = None
         self._mesh_entity = None
@@ -50,6 +50,11 @@ class IsoparametricContinuousLagrange1d(MappedElement):
     def set_mapping(self, mapping):
         raise Exception("Isoparametric element sets mapping internally!")
 
+    def sub_element(self, sub_element_index):
+        if self.is_sub_element:
+            raise Exception("A sub element does not have sub elements itself.")
+        raise NotImplementedError("Implement me!")
+
     def topological_dimension(self):
         return 1
 
@@ -61,6 +66,11 @@ class IsoparametricContinuousLagrange1d(MappedElement):
 
     def _mapping_is_valid(self, ref_point):
         raise NotImplementedError("This kind of check is not implemented yet.")
+
+    def sub_element_dof_map(self, sub_element_index):
+        if self.is_sub_element:
+            raise Exception("A sub element does not have sub elements itself.")
+        raise NotImplementedError("Implement me!")
 
     def interpolate_function(self, function):
         return self._ref_element.interpolate_function(function, self._mapping)

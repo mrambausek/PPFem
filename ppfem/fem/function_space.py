@@ -1,4 +1,4 @@
-# PPFem: A educational finite element code
+# PPFem: An educational finite element code
 # Copyright (C) 2015  Matthias Rambausek
 #
 # This program is free software: you can redistribute it and/or modify
@@ -111,6 +111,10 @@ class FunctionSpace(object):
     def get_element_dof_index_array(self, element_index):
         return sp.array(self._element_dof_map[element_index], dtype=sp.int64)
 
+    def get_sub_element_dof_index_array(self, element_index, sub_element_index):
+        return sp.array(self._element_dof_map[element_index][self._element.sub_element_dof_map(sub_element_index)],
+                        dtype=sp.int64)
+
     def get_element(self, mesh_entity):
         if self._subdomain is not None and mesh_entity.domain_indicator != self._subdomain:
             raise Exception("Mesh entity in wrong subdomain!")
@@ -151,3 +155,6 @@ class LocalFunctionSpace(object):
 
     def physical_coords(self, ref_point):
         return self._element.physical_coords(ref_point)
+
+    def local_sub_element_space(self, sub_element_index):
+        return LocalFunctionSpace(self._element.sub_element(sub_element_index))

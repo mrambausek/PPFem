@@ -1,4 +1,4 @@
-# PPFem: A educational finite element code
+# PPFem: An educational finite element code
 # Copyright (C) 2015  Matthias Rambausek
 #
 # This program is free software: you can redistribute it and/or modify

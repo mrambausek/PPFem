@@ -1,4 +1,4 @@
-# PPFem: A educational finite element code
+# PPFem: An educational finite element code
 # Copyright (C) 2015  Matthias Rambausek
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,8 +29,8 @@ class LazyEval(object):
 
 class PhysicalElement(abc.ABC):
 
-    def __init__(self):
-        pass
+    def __init__(self, is_sub_element = False):
+        self.is_sub_element = is_sub_element
 
     # TODO: add more methods for extraction of local DoF indices for sub-entities
     # this might also make necessary storing related (additional) data in MeshEntity
@@ -60,6 +60,24 @@ class PhysicalElement(abc.ABC):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod
+    def sub_element(self, sub_element_index):
+        """
+        Returns a sub-element with its mesh entity set to a sub-entity of the current mesh entity.
+        :param sub_element_index: index of the sub element (= the local sub entity index of the current mesh entity)
+        :return: a physical element of topological dim reduced by 1
+        """
+        raise Exception('Abstract method called!')
+
+    @abc.abstractmethod
+    def sub_element_dof_map(self, sub_element_index):
+        """
+        :param sub_element_index:
+        :return: a list where the entries correspond to the local dof numbers of the element from the viewpoint of
+        the sub-element
+        """
+        raise Exception('Abstract method called!')
+
+    @abc.abstractmethod
     def interpolate_function(self, mesh_entity):
         raise Exception('Abstract method called!')
 
@@ -76,7 +94,7 @@ class PhysicalElement(abc.ABC):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod
-    def shape_function_gradients(self, dof_values, ref_point):
+    def shape_function_gradients(self, ref_point):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod
@@ -105,8 +123,8 @@ class PhysicalElement(abc.ABC):
 
 
 class MappedElement(PhysicalElement):
-    def __init__(self):
-        PhysicalElement.__init__(self)
+    def __init__(self, is_sub_element=False):
+        PhysicalElement.__init__(self, is_sub_element=is_sub_element)
         self._mapping = None
         self._ref_element = None
 

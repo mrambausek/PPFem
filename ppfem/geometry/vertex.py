@@ -1,4 +1,4 @@
-# PPFem: A educational finite element code
+# PPFem: An educational finite element code
 # Copyright (C) 2015  Matthias Rambausek
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,8 +19,11 @@ from ppfem.geometry.point import Point
 
 class Vertex(Point):
 
-    def __init__(self, coords, global_number, associated_dof_numbers=None):
+    def __init__(self, coords, global_number=None, associated_dof_numbers=None):
         Point.__init__(self, *coords, index=global_number)
+        self.domain_indicator = 0
+        self.boundary_indicator = None
+
         if associated_dof_numbers is None:
             self._associated_dof_numbers = []
         else:

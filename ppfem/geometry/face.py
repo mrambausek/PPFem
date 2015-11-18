@@ -1,4 +1,4 @@
-# PPFem: A educational finite element code
+# PPFem: An educational finite element code
 # Copyright (C) 2015  Matthias Rambausek
 #
 # This program is free software: you can redistribute it and/or modify
@@ -18,10 +18,22 @@ from ppfem.geometry.mesh_entity import MeshEntity
 
 
 class Face(MeshEntity):
-
     def __init__(self, vertices, index, mesh):
         MeshEntity.__init__(self, vertices, index, mesh)
 
     @staticmethod
     def topological_dim():
         return 2
+
+    def _local_sub_entity_vertices(self):
+        if len(self._vertices) == 3:
+            return [(self._vertices[0], self._vertices[1]),
+                    (self._vertices[1], self._vertices[2]),
+                    (self._vertices[2], self._vertices[0])]
+        elif len(self._vertices) == 4:
+            return [(self._vertices[0], self._vertices[1]),
+                    (self._vertices[1], self._vertices[2]),
+                    (self._vertices[2], self._vertices[3]),
+                    (self._vertices[3], self._vertices[0])]
+        else:
+            raise NotImplementedError("Currently only linear triangle and quad faces support setting subentities.")

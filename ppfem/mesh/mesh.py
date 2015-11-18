@@ -1,4 +1,4 @@
-# PPFem: A educational finite element code
+# PPFem: An educational finite element code
 # Copyright (C) 2015  Matthias Rambausek
 #
 # This program is free software: you can redistribute it and/or modify
@@ -14,10 +14,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from ppfem.geometry.point import Point
 from ppfem.geometry.line import Line
 from ppfem.geometry.face import Face
 from ppfem.geometry.cell import Cell
+
+
+class FilterIndices(object):
+    def __init__(self, indices):
+        self.indices = indices
+
+    def __call__(self, e):
+        return e.index in self.indices
+
+
+class FilterEntitiesOnVertexIndices(object):
+    def __init__(self, vertex_indices):
+        self.vertex_indices = frozenset(vertex_indices)
+
+    def __call__(self, e):
+        self.vertex_indices == frozenset(e.global_vertex_indices())
 
 
 class Mesh(object):
@@ -25,7 +40,7 @@ class Mesh(object):
     def __init__(self, space_dim, topological_dim=None):
         self._cell_dict = {}
         self._face_dict = {}
-        self._line_elem_dict = {}
+        self._line_dict = {}
         self._vertex_dict = {}
         self._space_dim = space_dim
         if topological_dim is None:
@@ -33,31 +48,61 @@ class Mesh(object):
         else:
             self._topological_dim = topological_dim
 
-    def get_mesh_entities(self, topological_dim=None):
+    def get_mesh_entities(self, topological_dim=None, indices=None, filter_func=None):
+        _iters = []
         if topological_dim is None:
             topological_dim = self.topological_dim()
         if topological_dim == 0:
-            return self.vertices()
+            _iter = self.vertices()
         elif topological_dim == 1:
-            return self.lines()
+            _iter = self.lines()
         elif topological_dim == 2:
-            return self.faces()
+            _iter = self.faces()
         elif topological_dim == 3:
-            return self.cells()
+            _iter = self.cells()
         else:
-            raise NotImplementedError("Topological dimension of mesh must be 1, 2 or 3.")
+            raise NotImplementedError("Topological dimension of mesh entities must be 0, 1, 2 or 3.")
+
+        _iters.append(_iter)
+
+        if filter_func is not None:
+            _iters.append(filter(filter_func, _iters[-1]))
+        if indices is not None:
+            _iters.append(filter(FilterIndices(indices), _iters[-1]))
+        return _iters[-1]
 
     def add_vertex(self, vertex):
+        if vertex.index is None:
+            vertex.index = max(self._vertex_dict.keys()) + 1
         Mesh._add_entity(vertex, vertex.global_index(), self._vertex_dict, "vertex dict")
+        return vertex.index
 
-    def add_face(self, vertex_numbers, number):
+    def add_line(self, vertex_numbers, number=None):
+        if number is None:
+            number = max(self._line_dict.keys()) + 1
+        Mesh._add_entity(Line(vertex_numbers, number, self), number, self._line_dict, "edge dict")
+        return number
+
+    def add_face(self, vertex_numbers, number=None):
+        number = max(self._face_dict.keys()) + 1
         Mesh._add_entity(Face(vertex_numbers, number, self), number, self._face_dict, "face dict")
+        return number
 
-    def add_line(self, vertex_numbers, number):
-        Mesh._add_entity(Line(vertex_numbers, number, self), number, self._line_elem_dict, "edge dict")
-
-    def add_cell(self, vertex_numbers, number):
+    def add_cell(self, vertex_numbers, number=None):
+        number = max(self._cell_dict.keys()) + 1
         Mesh._add_entity(Cell(vertex_numbers, number, self), number, self._cell_dict, "cell dict")
+        return number
+
+    def find_entities_with_vertices(self, vertex_indices, topological_dim):
+        if topological_dim == 1:
+            return filter(FilterEntitiesOnVertexIndices(vertex_indices), self.lines())[0]
+        elif topological_dim == 2:
+            return filter(FilterEntitiesOnVertexIndices(vertex_indices), self.faces())
+        elif topological_dim == 3:
+            return filter(FilterEntitiesOnVertexIndices(vertex_indices), self.cell())
+        else:
+            raise NotImplementedError("Topological dimension of mesh entities must be 1, 2 or 3.")
+
 
     def select_vertex(self, global_vertex_number):
         return self._vertex_dict[global_vertex_number]
@@ -78,7 +123,7 @@ class Mesh(object):
         return self._face_dict.values()
 
     def lines(self):
-        return self._line_elem_dict.values()
+        return self._line_dict.values()
 
     def topological_dim(self):
         return self._topological_dim

@@ -1,4 +1,4 @@
-# PPFem: A educational finite element code
+# PPFem: An educational finite element code
 # Copyright (C) 2015  Matthias Rambausek
 #
 # This program is free software: you can redistribute it and/or modify
@@ -77,8 +77,7 @@ class DefaultSystemAssembler(Assembler):
                 local_linear_form = L.local_cell_linear_form(eval_data)
                 DefaultSystemAssembler._assemble_local_cell_linear_form(
                     local_linear_form,
-                    L.test_function_space.get_element_dof_index_array(
-                        e.index),
+                    L.test_function_space.get_element_dof_index_array(e.index),
                     discrete_linear_form
                 )
 
@@ -92,10 +91,8 @@ class DefaultSystemAssembler(Assembler):
                 local_bilinear_form = a.local_cell_bilinear_form(eval_data)
                 DefaultSystemAssembler._assemble_local_cell_bilinear_form(
                     local_bilinear_form,
-                    a.test_function_space.get_element_dof_index_array(
-                        e.index),
-                    a.trial_function_space.get_element_dof_index_array(
-                        e.index),
+                    a.test_function_space.get_element_dof_index_array(e.index),
+                    a.trial_function_space.get_element_dof_index_array(e.index),
                     discrete_bilinear_form
                 )
 
