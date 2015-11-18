@@ -19,6 +19,16 @@ from ppfem.fem.physical_element import MappedElement
 
 
 class FunctionSpace(object):
+    """
+    This class represents FEM-style function spaces.
+    They rely on a mesh, an element describing the local shape functions. Some additional input like a mapping object
+    or a subdomain to which this function space is restrict can also be provided.
+    FunctionSpace provide assembly information for elements via
+      `get_element_dof_index_array`
+    and allow to interpolate functions via
+      `interpolate_function`
+    where the result are the values of the values for "degrees of freedom" for an interpolant on this function space.
+    """
 
     def __init__(self, element, mesh=None, subdomain=None, mapping=None):
         self._element = element
@@ -130,6 +140,14 @@ class FunctionSpace(object):
         return self.number_of_dofs
 
     def interpolate_function(self, function):
+        """
+        Computes the values for degrees of freedom in this function space to represent an interpolation of
+        the given function.
+        :param function: callable of kind f(x) where x is a vector of reference space dimension and
+          and the return value if of dimension function_dim() of this function space
+        :return: an array of values of degrees of freedom, which may be used for construction an object of type
+        FEFunction
+        """
         global_dofs = sp.zeros(self.number_of_dofs)
         for e in self.mesh_entity_iterator():
             global_dofs[self._element_dof_map[e.index]] = self.localize(e).interpolate_function(function)

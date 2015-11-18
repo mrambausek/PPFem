@@ -134,6 +134,13 @@ class Form(abc.ABC):
 
 
 class Functional(Form):
+    """
+    Represesent functionals, usually in the sense of an integral of some functions over a given domain.
+    This class is an abstract class! However, only the local (element / inter-element) computations have to be
+    implemented. Have a look at the types
+    `CellEvalDataBase`, `InteriorFaceEvalDataBase` and `ExteriorFaceEvalDataBase`
+    for information that is available for these local contributions.
+    """
     def __init__(self, quadrature, mapping=None, fe_functions=None, mesh=None, subdomain=None):
         Form.__init__(self, quadrature, fe_functions=fe_functions, mapping=mapping, mesh=mesh, subdomain=subdomain)
         if self._mesh is None:
@@ -211,6 +218,13 @@ class Functional(Form):
 
 
 class LinearForm(Form):
+    """
+    Represesents linear forms (in the FEM sense),over a given domain.
+    This class is an abstract class! However, only the local (element / inter-element) computations have to be
+    implemented. Have a look at the types
+    `CellEvalDataLinearForm`, `InteriorFaceEvalDataLinearForm` and `ExteriorFaceEvalDataLinearForm`
+    for information that is available for these local contributions.
+    """
     def __init__(self, test_function_space, quadrature, fe_functions=None, mapping=None, mesh=None, subdomain=None):
         Form.__init__(self, quadrature, mapping=mapping, fe_functions=fe_functions)
         self.test_function_space = test_function_space
@@ -299,6 +313,13 @@ class LinearForm(Form):
 
 
 class BilinearForm(Form):
+    """
+    Represesents bilinear forms (in the FEM sense),over a given domain.
+    This class is an abstract class! However, only the local (element / inter-element) computations have to be
+    implemented. Have a look at the types
+    `CellEvalDataBilinearForm`, `InteriorFaceEvalDataBilinearForm` and `ExteriorFaceEvalDataBilinearForm`
+    for information that is available for these local contributions.
+    """
     def __init__(self, test_function_space, trial_function_space, quadrature, mapping=None, fe_functions=None,
                  mesh=None, subdomain=None):
         Form.__init__(self, quadrature, mapping=mapping, fe_functions=fe_functions, mesh=mesh, subdomain=subdomain)

@@ -18,7 +18,12 @@ import scipy as sp
 
 
 class FEFunction(object):
-
+    """
+    Represents function on the given function space. The values can be initialized either via
+      `set_dof_values_from_interpolation`
+    or directly via
+      `set_dof_values`.
+    """
     def __init__(self, function_space):
         self._function_space = function_space
         self._dof_values = sp.zeros(self._function_space.number_of_dofs)
@@ -33,6 +38,10 @@ class FEFunction(object):
         return self._dof_values
 
     def set_dof_values_from_interpolation(self, function):
+        """
+        :param function: callable of kind f(x) where x is a vector of reference space dimension and
+          and the return value if of dimension function_dim() of this function space
+        """
         self.set_dof_values(self._function_space.interpolate_function(function))
 
     def set_dof_values(self, new_values):
