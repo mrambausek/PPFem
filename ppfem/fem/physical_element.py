@@ -29,9 +29,8 @@ class LazyEval(object):
 
 class PhysicalElement(abc.ABC):
 
-    def __init__(self, is_sub_element = False):
-        self.is_sub_element = is_sub_element
-
+    def __init__(self):
+        pass
     # TODO: add more methods for extraction of local DoF indices for sub-entities
     # this might also make necessary storing related (additional) data in MeshEntity
 
@@ -60,21 +59,7 @@ class PhysicalElement(abc.ABC):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod
-    def sub_element(self, sub_element_index):
-        """
-        Returns a sub-element with its mesh entity set to a sub-entity of the current mesh entity.
-        :param sub_element_index: index of the sub element (= the local sub entity index of the current mesh entity)
-        :return: a physical element of topological dim reduced by 1
-        """
-        raise Exception('Abstract method called!')
-
-    @abc.abstractmethod
-    def sub_element_dof_map(self, sub_element_index):
-        """
-        :param sub_element_index:
-        :return: a list where the entries correspond to the local dof numbers of the element from the viewpoint of
-        the sub-element
-        """
+    def boundary_normal(self, local_boundary_index, boundary_ref_point):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod
@@ -102,10 +87,6 @@ class PhysicalElement(abc.ABC):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod
-    def jxw(self, qp_data):
-        raise Exception('Abstract method called!')
-
-    @abc.abstractmethod
     def global_vertex_indices(self):
         raise Exception('Abstract method called!')
 
@@ -123,8 +104,8 @@ class PhysicalElement(abc.ABC):
 
 
 class MappedElement(PhysicalElement):
-    def __init__(self, is_sub_element=False):
-        PhysicalElement.__init__(self, is_sub_element=is_sub_element)
+    def __init__(self):
+        PhysicalElement.__init__(self)
         self._mapping = None
         self._ref_element = None
 

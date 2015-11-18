@@ -20,12 +20,15 @@ from ppfem.elements.lagrange_elements import LagrangeLine
 from ppfem.geometry.mapping import FEMapping
 import scipy as sp
 
+from ppfem.geometry.point import Point
+
 
 class IsoparametricContinuousLagrange1d(MappedElement):
 
-    def __init__(self, dim, is_sub_element=False):
-        MappedElement.__init__(self, is_sub_element=is_sub_element)
+    def __init__(self, dim, space_dim=1):
+        MappedElement.__init__(self)
         self._dim = dim
+        self._space_dim = space_dim
         self._ref_element = None
         self._mesh_entity = None
         self._cache = {}
@@ -43,17 +46,12 @@ class IsoparametricContinuousLagrange1d(MappedElement):
     def set_mesh_entity(self, mesh_entity):
         self._mesh_entity = mesh_entity
         vertices = mesh_entity.vertices()
-        self._ref_element = LagrangeLine(len(vertices) - 1, self._dim)
+        self._ref_element = LagrangeLine(len(vertices) - 1, self._space_dim)
         self._mapping = FEMapping(self._ref_element)
         self._mapping.set_mesh_entity(mesh_entity)
 
     def set_mapping(self, mapping):
         raise Exception("Isoparametric element sets mapping internally!")
-
-    def sub_element(self, sub_element_index):
-        if self.is_sub_element:
-            raise Exception("A sub element does not have sub elements itself.")
-        raise NotImplementedError("Implement me!")
 
     def topological_dimension(self):
         return 1
@@ -67,11 +65,6 @@ class IsoparametricContinuousLagrange1d(MappedElement):
     def _mapping_is_valid(self, ref_point):
         raise NotImplementedError("This kind of check is not implemented yet.")
 
-    def sub_element_dof_map(self, sub_element_index):
-        if self.is_sub_element:
-            raise Exception("A sub element does not have sub elements itself.")
-        raise NotImplementedError("Implement me!")
-
     def interpolate_function(self, function):
         return self._ref_element.interpolate_function(function, self._mapping)
 
@@ -79,8 +72,8 @@ class IsoparametricContinuousLagrange1d(MappedElement):
         return self._ref_element.function_value(dof_values, ref_point)
 
     def function_gradient(self, dof_values, ref_point):
-        J_inv = self._mapping.inverse_jacobian(ref_point)
-        return self._ref_element.function_gradient(dof_values, ref_point, J_inv)
+        jac_inv = self._mapping.inverse_jacobian(ref_point)
+        return self._ref_element.function_gradient(dof_values, ref_point, jac_inv)
 
     def shape_function_values(self, ref_point):
         return self._ref_element.basis_function_values(ref_point)
@@ -89,15 +82,18 @@ class IsoparametricContinuousLagrange1d(MappedElement):
         J_inv = self._mapping.inverse_jacobian(ref_point)
         return self._ref_element.basis_function_gradients(ref_point, J_inv)
 
+    def boundary_normal(self, local_boundary_index, boundary_ref_point):
+        if local_boundary_index == 0:
+            return -self._mapping.jacobian(Point([-1]))
+        elif local_boundary_index == 1:
+            return self._mapping.jacobian(Point([1]))
+
     def physical_coords(self, ref_point):
         return self._mapping.map_point(ref_point)
 
     def director(self, ref_point):
-        J = self._mapping.jacobian(ref_point)
-        return J/sp.linalg.norm(J)
-
-    def jxw(self, qp_data):
-        return self._mapping.jacobian_det(qp_data.point) * qp_data.weight
+        jac = self._mapping.jacobian(ref_point)
+        return jac/sp.linalg.norm(jac)
 
     def global_vertex_indices(self):
         return self._mesh_entity.global_vertex_indices()

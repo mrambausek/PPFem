@@ -47,9 +47,6 @@ class FEFunction(object):
     def get_element_dof_index_array(self, element_index):
         return self._function_space.get_element_dof_index_array(element_index)
 
-    def get_sub_element_dof_index_array(self, element_index, sub_element_index):
-        return self._function_space.get_sub_element_dof_index_array(element_index, sub_element_index)
-
 
 class LocalFunction(object):
     def __init__(self, element, local_dof_values, global_function):
@@ -62,8 +59,3 @@ class LocalFunction(object):
 
     def function_gradient(self, ref_point):
         return self._element.function_gradient(self._dof_values, ref_point)
-
-    def local_sub_element_function(self, sub_element_index):
-        sub_indices = self._global_function.get_sub_element_dof_index_array(self._element.index(), sub_element_index)
-        sub_dofs = self._global_function.dof_values()[sub_indices]
-        return LocalFunction(self._element.sub_element(sub_element_index), sub_dofs)
