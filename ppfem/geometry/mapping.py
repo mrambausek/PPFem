@@ -17,6 +17,7 @@
 import abc
 import scipy as sp
 import scipy.linalg as spl
+from ppfem.geometry.point import Point
 
 
 class Mapping(abc.ABC):
@@ -60,8 +61,8 @@ class FEMapping(Mapping):
         self._mesh_entity = None
 
     def map_point(self, reference_point):
-        return self._element.function_value(self._mesh_entity.vertex_coords(),
-                                            reference_point)
+        return Point(self._element.function_value(self._mesh_entity.vertex_coords(),
+                                                  reference_point))
 
     def jacobian(self, reference_point):
         jac = self._element.function_gradient(self._mesh_entity.vertex_coords(),

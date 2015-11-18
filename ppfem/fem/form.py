@@ -172,8 +172,8 @@ class Functional(Form):
             local_mapping = mapping.localize(mesh_entity)
 
         return CellEvalDataBase(self._localize_fe_functions(mesh_entity),
-                                self.quadrature,
                                 local_mapping,
+                                self.quadrature,
                                 params)
 
     def get_interior_face_eval_data_functional(self, mesh_entities, params=None, mapping=None):
@@ -194,8 +194,8 @@ class Functional(Form):
         return InteriorFaceEvalDataBase(
             [self._localize_fe_functions(mesh_entities[0]),
              self._localize_fe_functions(mesh_entities[1])],
-            self.quadrature,
             local_mappings,
+            self.quadrature,
             params)
 
     def get_exterior_face_eval_data_functional(self, mesh_entity, params=None, mapping=None):
@@ -212,8 +212,8 @@ class Functional(Form):
         if mapping is not None:
             local_mapping = mapping.localize(mesh_entity)
         return ExteriorFaceEvalDataBase(self._localize_fe_functions(mesh_entity),
-                                        self.quadrature,
                                         local_mapping,
+                                        self.quadrature,
                                         params)
 
 
@@ -259,8 +259,8 @@ class LinearForm(Form):
             local_mapping = mapping.localize(mesh_entity)
         return CellEvalDataLinearForm(self.test_function_space.localize(mesh_entity),
                                       self._localize_fe_functions(mesh_entity),
-                                      self.quadrature,
                                       local_mapping,
+                                      self.quadrature,
                                       params)
 
     def get_interior_face_eval_data_linear_form(self, mesh_entities, params=None, mapping=None):
@@ -282,8 +282,8 @@ class LinearForm(Form):
              self.test_function_space.localize(mesh_entities[1])],
             [self._localize_fe_functions(mesh_entities[0]),
              self._localize_fe_functions(mesh_entities[1])],
-            self.quadrature,
             local_mappings,
+            self.quadrature,
             params)
 
     def get_exterior_face_eval_data_linear_form(self, mesh_entity, params=None, mapping=None):
@@ -301,8 +301,8 @@ class LinearForm(Form):
                 local_mapping = mapping.localize(mesh_entity)
         return ExteriorFaceEvalDataLinearForm(self.test_function_space.localize(mesh_entity),
                                               self._localize_fe_functions(mesh_entity),
-                                              self.quadrature,
                                               local_mapping,
+                                              self.quadrature,
                                               params)
 
     def get_local_size(self, mesh_entity):
@@ -359,8 +359,8 @@ class BilinearForm(Form):
         return CellEvalDataBilinearForm(self.test_function_space.localize(mesh_entity),
                                         self.trial_function_space.localize(mesh_entity),
                                         self._localize_fe_functions(mesh_entity),
-                                        self.quadrature,
                                         local_mapping,
+                                        self.quadrature,
                                         params)
 
     def get_interior_face_eval_data_bilinear_form(self, mesh_entities, params=None, mapping=None):
@@ -384,8 +384,8 @@ class BilinearForm(Form):
              self.trial_function_space.localize(mesh_entities[1])]
             [self._localize_fe_functions(mesh_entities[0]),
              self._localize_fe_functions(mesh_entities[1])],
-            self.quadrature,
             local_mappings,
+            self.quadrature,
             params)
 
     def get_exterior_face_eval_data_bilinear_form(self, mesh_entity, params=None, mapping=None):
@@ -404,8 +404,8 @@ class BilinearForm(Form):
         return ExteriorFaceEvalDataBilinearForm(self.test_function_space.localize(mesh_entity),
                                                 self.trial_function_space.localize(mesh_entity),
                                                 self._localize_fe_functions(mesh_entity),
-                                                self.quadrature,
                                                 local_mapping,
+                                                self.quadrature,
                                                 params)
 
     def get_local_shape(self, mesh_entity):

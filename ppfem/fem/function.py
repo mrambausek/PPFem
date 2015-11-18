@@ -25,14 +25,14 @@ class FEFunction(object):
       `set_dof_values`.
     """
     def __init__(self, function_space):
-        self._function_space = function_space
-        self._dof_values = sp.zeros(self._function_space.number_of_dofs)
+        self.function_space = function_space
+        self._dof_values = sp.zeros(self.function_space.number_of_dofs)
 
     def number_of_dofs(self):
-        return self._function_space.number_of_dofs
+        return self.function_space.number_of_dofs
 
     def function_dim(self):
-        self._function_space.function_dim()
+        self.function_space.function_dim()
 
     def dof_values(self):
         return self._dof_values
@@ -42,19 +42,28 @@ class FEFunction(object):
         :param function: callable of kind f(x) where x is a vector of reference space dimension and
           and the return value if of dimension function_dim() of this function space
         """
-        self.set_dof_values(self._function_space.interpolate_function(function))
+        self.set_dof_values(self.function_space.interpolate_function(function))
 
     def set_dof_values(self, new_values):
         # TODO: add some checks
         self._dof_values = new_values
 
     def localize(self, mesh_entity):
-        elmt = self._function_space.get_element(mesh_entity)
+        elmt = self.function_space.get_element(mesh_entity)
         return LocalFunction(elmt,
-                             self._dof_values[self._function_space.get_element_dof_index_array(elmt.index())])
+                             self._dof_values[self.function_space.get_element_dof_index_array(elmt.index())])
 
     def get_element_dof_index_array(self, element_index):
-        return self._function_space.get_element_dof_index_array(element_index)
+        return self.function_space.get_element_dof_index_array(element_index)
+
+    def get_mapping(self):
+        return self.function_space.get_mapping()
+
+    def get_mesh(self):
+        return self.function_space.get_mesh()
+
+    def get_subdomain(self):
+        return self.function_space.get_subdomain()
 
 
 class LocalFunction(object):
@@ -67,3 +76,9 @@ class LocalFunction(object):
 
     def function_gradient(self, ref_point):
         return self._element.function_gradient(self._dof_values, ref_point)
+
+    def __call__(self, ref_point, der=0):
+        if der == 0:
+            return self.function_value(ref_point)
+        elif der == 1:
+            return self.function_gradient(ref_point)

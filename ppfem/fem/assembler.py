@@ -66,6 +66,7 @@ class DefaultSystemAssembler(Assembler):
                 eval_data = f.get_cell_eval_data_functional(e, params)
                 local_functional = f.local_cell_functional(eval_data)
                 discrete_functional += local_functional
+        return discrete_functional
 
     @staticmethod
     def assemble_linear_forms(discrete_linear_form, forms, params=None):

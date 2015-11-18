@@ -34,7 +34,7 @@ class LagrangeElement(ReferenceElement):
         else:
             points = self.get_support_points()
 
-        return np.array([function(p) for p in points])
+        return np.array([function(p.coords()) for p in points])
 
     def function_value(self, dof_values, point):
         # first array axis corresponds to basis function!
