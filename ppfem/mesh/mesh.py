@@ -73,23 +73,37 @@ class Mesh(object):
 
     def add_vertex(self, vertex):
         if vertex.index is None:
-            vertex.index = max(self._vertex_dict.keys()) + 1
+            if len(self._vertex_dict) == 0:
+                vertex.index = 0
+            else:
+                vertex.index = max(self._vertex_dict.keys()) + 1
         Mesh._add_entity(vertex, vertex.global_index(), self._vertex_dict, "vertex dict")
         return vertex
 
     def add_line(self, vertex_numbers, number=None):
         if number is None:
-            number = max(self._line_dict.keys()) + 1
+            if len(self._line_dict) == 0:
+                number = 0
+            else:
+                number = max(self._line_dict.keys()) + 1
         Mesh._add_entity(Line(vertex_numbers, number, self), number, self._line_dict, "edge dict")
         return self._line_dict[number]
 
     def add_face(self, vertex_numbers, number=None):
-        number = max(self._face_dict.keys()) + 1
+        if number is None:
+            if len(self._line_dict) == 0:
+                number = 0
+            else:
+                number = max(self._face_dict.keys()) + 1
         Mesh._add_entity(Face(vertex_numbers, number, self), number, self._face_dict, "face dict")
         return self._face_dict[number]
 
     def add_cell(self, vertex_numbers, number=None):
-        number = max(self._cell_dict.keys()) + 1
+        if number is None:
+            if len(self._line_dict) == 0:
+                number = 0
+            else:
+                number = max(self._line_dict.keys()) + 1
         Mesh._add_entity(Cell(vertex_numbers, number, self), number, self._cell_dict, "cell dict")
         return self._cell_dict[number]
 
