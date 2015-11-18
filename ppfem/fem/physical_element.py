@@ -63,6 +63,10 @@ class PhysicalElement(abc.ABC):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod
+    def boundary_orientation(self, local_boundary_index):
+        raise Exception('Abstract method called!')
+
+    @abc.abstractmethod
     def interpolate_function(self, mesh_entity):
         raise Exception('Abstract method called!')
 

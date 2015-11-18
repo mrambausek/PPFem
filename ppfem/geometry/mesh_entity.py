@@ -72,7 +72,7 @@ class MeshEntity(abc.ABC):
     def _sub_entity_indices(self):
         return [s.index for s in self._sub_entities]
 
-    def get_sub_entities(self, filter_func=None):
+    def sub_entities(self, filter_func=None):
         if self._sub_entities is None:
             return None
         elif filter_func is None:
@@ -99,8 +99,8 @@ class MeshEntity(abc.ABC):
 
 
 class SubEntity(object):
-    pos = '+'
-    neg = '-'
+    pos = 1
+    neg = -1
 
     def __init__(self, entity, orientation):
         # entity not necessarily a 'real' mesh entity (Line, Face, Cell); could be a vertex too

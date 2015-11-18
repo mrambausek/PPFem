@@ -19,15 +19,10 @@ from ppfem.geometry.point import Point
 
 class Vertex(Point):
 
-    def __init__(self, coords, global_number=None, associated_dof_numbers=None):
+    def __init__(self, coords, global_number=None):
         Point.__init__(self, *coords, index=global_number)
         self.domain_indicator = 0
         self.boundary_indicator = None
-
-        if associated_dof_numbers is None:
-            self._associated_dof_numbers = []
-        else:
-            self._associated_dof_numbers = associated_dof_numbers
 
     def global_index(self):
         return self.index

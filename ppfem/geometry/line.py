@@ -28,11 +28,20 @@ class Line(MeshEntity):
 
     def set_sub_entities(self):
         """Orientation of vertices is defined to be the axis direction."""
-        self._sub_entities = [SubEntity(self._mesh.select_vertex(self._vertices[0]), SubEntity.neg),
-                              SubEntity(self._mesh.select_vertex(self._vertices[1]), SubEntity.pos)]
+        v1 = self._mesh.select_vertex(self._vertices[0])
+        v2 = self._mesh.select_vertex(self._vertices[1])
+        if len(v1.coords()) > 1:
+            raise Exception("Vertices have more than one coordinate. In such a >1d setting sub entities are not"
+                            "defined for lines.")
+        if v1[0] < v2[0]:
+            self._sub_entities = [SubEntity(v1, SubEntity.neg),
+                                  SubEntity(v2, SubEntity.pos)]
+        else:
+            self._sub_entities = [SubEntity(v1, SubEntity.pos),
+                                  SubEntity(v2, SubEntity.neg)]
 
     def _local_sub_entity_vertices(self):
-        #return self._vertices[0], self._vertices[1]
+        # return self._vertices[0], self._vertices[1]
         raise Exception("This method is supposted to be called by 'set_sub_entities' in class 'MeshEntity'."
                         "'set_sub_entities', however, is overriden in class Line and does not call this method.")
 

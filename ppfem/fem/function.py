@@ -49,10 +49,9 @@ class FEFunction(object):
 
 
 class LocalFunction(object):
-    def __init__(self, element, local_dof_values, global_function):
+    def __init__(self, element, local_dof_values):
         self._element = element
         self._dof_values = local_dof_values
-        self._global_function = global_function
 
     def function_value(self, ref_point):
         return self._element.function_value(self._dof_values, ref_point)

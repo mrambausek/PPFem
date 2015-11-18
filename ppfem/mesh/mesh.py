@@ -75,23 +75,23 @@ class Mesh(object):
         if vertex.index is None:
             vertex.index = max(self._vertex_dict.keys()) + 1
         Mesh._add_entity(vertex, vertex.global_index(), self._vertex_dict, "vertex dict")
-        return vertex.index
+        return vertex
 
     def add_line(self, vertex_numbers, number=None):
         if number is None:
             number = max(self._line_dict.keys()) + 1
         Mesh._add_entity(Line(vertex_numbers, number, self), number, self._line_dict, "edge dict")
-        return number
+        return self._line_dict[number]
 
     def add_face(self, vertex_numbers, number=None):
         number = max(self._face_dict.keys()) + 1
         Mesh._add_entity(Face(vertex_numbers, number, self), number, self._face_dict, "face dict")
-        return number
+        return self._face_dict[number]
 
     def add_cell(self, vertex_numbers, number=None):
         number = max(self._cell_dict.keys()) + 1
         Mesh._add_entity(Cell(vertex_numbers, number, self), number, self._cell_dict, "cell dict")
-        return number
+        return self._cell_dict[number]
 
     def find_entities_with_vertices(self, vertex_indices, topological_dim):
         if topological_dim == 1:
@@ -102,7 +102,6 @@ class Mesh(object):
             return filter(FilterEntitiesOnVertexIndices(vertex_indices), self.cell())
         else:
             raise NotImplementedError("Topological dimension of mesh entities must be 1, 2 or 3.")
-
 
     def select_vertex(self, global_vertex_number):
         return self._vertex_dict[global_vertex_number]

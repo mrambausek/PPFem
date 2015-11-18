@@ -83,10 +83,15 @@ class IsoparametricContinuousLagrange1d(MappedElement):
         return self._ref_element.basis_function_gradients(ref_point, J_inv)
 
     def boundary_normal(self, local_boundary_index, boundary_ref_point):
+        if self._space_dim > 1:
+            raise Exception("boundary_normal() for this element only defined for space_dim == 1")
         if local_boundary_index == 0:
-            return -self._mapping.jacobian(Point([-1]))
+            return sp.array([[-1]])
         elif local_boundary_index == 1:
-            return self._mapping.jacobian(Point([1]))
+            return sp.array([[ 1]])
+
+    def boundary_orientation(self, local_boundary_index):
+        return self._mesh_entity.get_sub_entity(local_boundary_index).orientation
 
     def physical_coords(self, ref_point):
         return self._mapping.map_point(ref_point)
