@@ -18,64 +18,73 @@ import abc
 
 
 class CellEvalDataBase(object):
-    def __init__(self, local_fe_functions, mapping, quadrature, params):
+    def __init__(self, local_fe_functions, local_non_fe_functions, mapping, quadrature, params):
         self.local_fe_functions = local_fe_functions
+        self.local_non_fe_functions = local_non_fe_functions
         self.mapping = mapping
         self.quadrature = quadrature
         self.params = params
 
 
 class CellEvalDataLinearForm(CellEvalDataBase):
-    def __init__(self, local_test_space, local_fe_functions, mapping, quadrature, params):
-        CellEvalDataBase.__init__(self, local_fe_functions, mapping, quadrature, params)
+    def __init__(self, local_test_space, local_fe_functions, local_non_fe_functions, mapping, quadrature, params):
+        CellEvalDataBase.__init__(self, local_fe_functions, local_non_fe_functions, mapping, quadrature, params)
         self.local_test_space = local_test_space
 
 
 class CellEvalDataBilinearForm(CellEvalDataLinearForm):
-    def __init__(self, local_test_space, local_trial_space, local_fe_functions, mapping, quadrature, params):
-        CellEvalDataLinearForm.__init__(self, local_test_space, local_fe_functions, mapping, quadrature, params)
+    def __init__(self, local_test_space, local_trial_space, local_fe_functions, local_non_fe_functions, mapping,
+                 quadrature, params):
+        CellEvalDataLinearForm.__init__(self, local_test_space, local_fe_functions, local_non_fe_functions, mapping,
+                                        quadrature, params)
         self.local_trial_space = local_trial_space
 
 
 # FIXME: *FaceEvalData* not tested and not a stable design yet!
 class InteriorFaceEvalDataBase(object):
-    def __init__(self, local_fe_functions, mappings, quadrature, params):
+    def __init__(self, local_fe_functions, local_non_fe_functions, mappings, quadrature, params):
         self.local_fe_functions = local_fe_functions
+        self.local_non_fe_functions = local_non_fe_functions
         self.mapping = mappings
         self.quadrature = quadrature
         self.params = params
 
 
 class InteriorFaceEvalDataLinearForm(InteriorFaceEvalDataBase):
-    def __init__(self, local_test_spaces, local_fe_functions, mappings, quadrature, params):
-        InteriorFaceEvalDataBase.__init__(self, local_fe_functions, mappings, quadrature, params)
+    def __init__(self, local_test_spaces, local_fe_functions, local_non_fe_functions, mappings, quadrature, params):
+        InteriorFaceEvalDataBase.__init__(self, local_fe_functions, local_non_fe_functions, mappings, quadrature,
+                                          params)
         self.local_test_spaces = local_test_spaces
 
 
 class InteriorFaceEvalDataBilinearForm(InteriorFaceEvalDataLinearForm):
-    def __init__(self, local_test_spaces, local_trial_spaces, local_fe_functions, mappings, quadrature, params):
-        InteriorFaceEvalDataLinearForm.__init__(self, local_test_spaces, local_fe_functions,
+    def __init__(self, local_test_spaces, local_trial_spaces, local_fe_functions, local_non_fe_functions, mappings,
+                 quadrature, params):
+        InteriorFaceEvalDataLinearForm.__init__(self, local_test_spaces, local_fe_functions, local_non_fe_functions,
                                                 mappings, quadrature, params)
         self.local_trial_spaces = local_trial_spaces
 
 
 class ExteriorFaceEvalDataBase(object):
-    def __init__(self, local_fe_functions, mapping, quadrature, params):
+    def __init__(self, local_fe_functions, local_non_fe_functions, mapping, quadrature, params):
         self.local_fe_functions = local_fe_functions
+        self.local_non_fe_functions = local_non_fe_functions
         self.mapping = mapping
         self.quadrature = quadrature
         self.params = params
 
 
 class ExteriorFaceEvalDataLinearForm(ExteriorFaceEvalDataBase):
-    def __init__(self, local_test_space, local_fe_functions, mapping, quadrature, params):
-        ExteriorFaceEvalDataBase.__init__(self, local_fe_functions, mapping, quadrature, params)
+    def __init__(self, local_test_space, local_fe_functions, local_non_fe_functions, mapping, quadrature, params):
+        ExteriorFaceEvalDataBase.__init__(self, local_fe_functions, local_non_fe_functions, mapping, quadrature, params)
         self.local_test_space = local_test_space
 
 
 class ExteriorFaceEvalDataBilinearForm(ExteriorFaceEvalDataLinearForm):
-    def __init__(self, local_test_space, local_trial_space, local_fe_functions, mapping, quadrature, params):
-        ExteriorFaceEvalDataLinearForm.__init__(self, local_test_space, local_fe_functions, mapping, quadrature, params)
+    def __init__(self, local_test_space, local_trial_space, local_fe_functions, local_non_fe_functions, mapping,
+                 quadrature, params):
+        ExteriorFaceEvalDataLinearForm.__init__(self, local_test_space, local_fe_functions, local_non_fe_functions,
+                                                mapping, quadrature, params)
         self.local_trial_space = local_trial_space
 
 
@@ -84,7 +93,7 @@ class Form(abc.ABC):
     interior_faces = "interior_faces"
     exterior_faces = "exterior_faces"
 
-    def __init__(self, quadrature, fe_functions=None, mapping=None, mesh=None, subdomain=None):
+    def __init__(self, quadrature, fe_functions=None, non_fe_functions=None, mapping=None, mesh=None, subdomain=None):
         self.quadrature = quadrature
         self._mesh = mesh
         self._subdomain = subdomain
@@ -94,6 +103,12 @@ class Form(abc.ABC):
         else:
             self.fe_functions = fe_functions
         self._localized_fe_functions = {}
+
+        if non_fe_functions is None:
+            self.non_fe_functions = {}
+        else:
+            self.non_fe_functions = non_fe_functions
+        self._localized_non_fe_functions = {}
 
         self.mapping = mapping
 
@@ -113,6 +128,11 @@ class Form(abc.ABC):
         for k in self.fe_functions.keys():
             self._localized_fe_functions[k] = self.fe_functions[k].localize(mesh_entity)
         return self._localized_fe_functions
+
+    def _localize_non_fe_functions(self, mesh_entity):
+        for k in self.non_fe_functions.keys():
+            self._localized_non_fe_functions[k] = self.non_fe_functions[k].localize(mesh_entity)
+        return self._localized_non_fe_functions
 
     def set_mesh(self, mesh, subdomain=None):
         self._mesh = mesh
@@ -143,8 +163,9 @@ class Functional(Form):
     `CellEvalDataBase`, `InteriorFaceEvalDataBase` and `ExteriorFaceEvalDataBase`
     for information that is available for these local contributions.
     """
-    def __init__(self, quadrature, mapping=None, fe_functions=None, mesh=None, subdomain=None):
-        Form.__init__(self, quadrature, fe_functions=fe_functions, mapping=mapping, mesh=mesh, subdomain=subdomain)
+    def __init__(self, quadrature, mapping=None, fe_functions=None, non_fe_functions=None, mesh=None, subdomain=None):
+        Form.__init__(self, quadrature, fe_functions=fe_functions, non_fe_functions=non_fe_functions, mapping=mapping,
+                      mesh=mesh, subdomain=subdomain)
         if self._mesh is None:
             for fef in self.fe_functions.values():
                 if hasattr(fef, "get_mesh") and hasattr(fef, "get_subdomain"):
@@ -174,6 +195,7 @@ class Functional(Form):
             local_mapping = mapping.localize(mesh_entity)
 
         return CellEvalDataBase(self._localize_fe_functions(mesh_entity),
+                                self._localize_non_fe_functions(mesh_entity),
                                 local_mapping,
                                 self.quadrature,
                                 params)
@@ -196,6 +218,8 @@ class Functional(Form):
         return InteriorFaceEvalDataBase(
             [self._localize_fe_functions(mesh_entities[0]),
              self._localize_fe_functions(mesh_entities[1])],
+            [self._localize_non_fe_functions(mesh_entities[0]),
+             self._localize_non_fe_functions(mesh_entities[1])],
             local_mappings,
             self.quadrature,
             params)
@@ -214,6 +238,7 @@ class Functional(Form):
         if mapping is not None:
             local_mapping = mapping.localize(mesh_entity)
         return ExteriorFaceEvalDataBase(self._localize_fe_functions(mesh_entity),
+                                        self._localize_non_fe_functions(mesh_entity),
                                         local_mapping,
                                         self.quadrature,
                                         params)
@@ -227,8 +252,9 @@ class LinearForm(Form):
     `CellEvalDataLinearForm`, `InteriorFaceEvalDataLinearForm` and `ExteriorFaceEvalDataLinearForm`
     for information that is available for these local contributions.
     """
-    def __init__(self, test_function_space, quadrature, fe_functions=None, mapping=None, mesh=None, subdomain=None):
-        Form.__init__(self, quadrature, mapping=mapping, fe_functions=fe_functions)
+    def __init__(self, test_function_space, quadrature, fe_functions=None, non_fe_functions=None, mapping=None,
+                 mesh=None, subdomain=None):
+        Form.__init__(self, quadrature, mapping=mapping, fe_functions=fe_functions, non_fe_functions=non_fe_functions)
         self.test_function_space = test_function_space
         if self.mapping is None:
             self.mapping = self.test_function_space.get_mapping()
@@ -261,6 +287,7 @@ class LinearForm(Form):
             local_mapping = mapping.localize(mesh_entity)
         return CellEvalDataLinearForm(self.test_function_space.localize(mesh_entity),
                                       self._localize_fe_functions(mesh_entity),
+                                      self._localize_non_fe_functions(mesh_entity),
                                       local_mapping,
                                       self.quadrature,
                                       params)
@@ -284,6 +311,8 @@ class LinearForm(Form):
              self.test_function_space.localize(mesh_entities[1])],
             [self._localize_fe_functions(mesh_entities[0]),
              self._localize_fe_functions(mesh_entities[1])],
+            [self._localize_non_fe_functions(mesh_entities[0]),
+             self._localize_non_fe_functions(mesh_entities[1])],
             local_mappings,
             self.quadrature,
             params)
@@ -303,6 +332,7 @@ class LinearForm(Form):
                 local_mapping = mapping.localize(mesh_entity)
         return ExteriorFaceEvalDataLinearForm(self.test_function_space.localize(mesh_entity),
                                               self._localize_fe_functions(mesh_entity),
+                                              self._localize_non_fe_functions(mesh_entity),
                                               local_mapping,
                                               self.quadrature,
                                               params)
@@ -323,8 +353,8 @@ class BilinearForm(Form):
     for information that is available for these local contributions.
     """
     def __init__(self, test_function_space, trial_function_space, quadrature, mapping=None, fe_functions=None,
-                 mesh=None, subdomain=None):
-        Form.__init__(self, quadrature, mapping=mapping, fe_functions=fe_functions, mesh=mesh, subdomain=subdomain)
+                 non_fe_functions=None, mesh=None, subdomain=None):
+        Form.__init__(self, quadrature, mapping=mapping, fe_functions=fe_functions, non_fe_functions=non_fe_functions)
         self.test_function_space = test_function_space
         self.trial_function_space = trial_function_space
         if self.mapping is None:
@@ -361,6 +391,7 @@ class BilinearForm(Form):
         return CellEvalDataBilinearForm(self.test_function_space.localize(mesh_entity),
                                         self.trial_function_space.localize(mesh_entity),
                                         self._localize_fe_functions(mesh_entity),
+                                        self._localize_non_fe_functions(mesh_entity),
                                         local_mapping,
                                         self.quadrature,
                                         params)
@@ -386,6 +417,8 @@ class BilinearForm(Form):
              self.trial_function_space.localize(mesh_entities[1])],
             [self._localize_fe_functions(mesh_entities[0]),
              self._localize_fe_functions(mesh_entities[1])],
+            [self._localize_non_fe_functions(mesh_entities[0]),
+             self._localize_non_fe_functions(mesh_entities[1])],
             local_mappings,
             self.quadrature,
             params)
@@ -406,6 +439,7 @@ class BilinearForm(Form):
         return ExteriorFaceEvalDataBilinearForm(self.test_function_space.localize(mesh_entity),
                                                 self.trial_function_space.localize(mesh_entity),
                                                 self._localize_fe_functions(mesh_entity),
+                                                self._localize_non_fe_functions(mesh_entity),
                                                 local_mapping,
                                                 self.quadrature,
                                                 params)
