@@ -136,6 +136,9 @@ class FunctionSpace(object):
     def function_dim(self):
         self._element.value_dimension()
 
+    def function_gradient_shape(self):
+        return self._element.value_dimension(), self._element.topological_dimension()
+
     def function_space_dim(self):
         return self.number_of_dofs
 
@@ -153,6 +156,14 @@ class FunctionSpace(object):
             global_dofs[self._element_dof_map[e.index]] = self.localize(e).interpolate_function(function)
         return global_dofs
 
+    def evaluate_function(self, function, mesh_entity, ref_point):
+        """
+        The function value for 'ref_point' in 'mesh_entity'.
+        :param function: callable of kind f(x) where x is a vector of physical space dimension and
+          and the return value if of dimension function_dim() of this function space
+        """
+        return self.localize(mesh_entity).evaluate_function(function, ref_point)
+
 
 class LocalFunctionSpace(object):
     def __init__(self, element):
@@ -169,3 +180,15 @@ class LocalFunctionSpace(object):
 
     def physical_coords(self, ref_point):
         return self._element.physical_coords(ref_point)
+
+    def number_of_shape_functions(self):
+        return self._element.number_of_global_dofs()
+
+    def function_dim(self):
+        return self._element.value_dimension()
+
+    def function_gradient_shape(self):
+        return self._element.value_dimension(), self._element.topological_dimension()
+
+    def evaluate_function(self, function, ref_point):
+        return function(self._element.get_mapping().map_point(ref_point))

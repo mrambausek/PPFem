@@ -109,11 +109,11 @@ class Mesh(object):
 
     def find_entities_with_vertices(self, vertex_indices, topological_dim):
         if topological_dim == 1:
-            return filter(FilterEntitiesOnVertexIndices(vertex_indices), self.lines())[0]
+            return filter(FilterEntitiesOnVertexIndices(vertex_indices), self.lines())
         elif topological_dim == 2:
             return filter(FilterEntitiesOnVertexIndices(vertex_indices), self.faces())
         elif topological_dim == 3:
-            return filter(FilterEntitiesOnVertexIndices(vertex_indices), self.cell())
+            return filter(FilterEntitiesOnVertexIndices(vertex_indices), self.cells())
         else:
             raise NotImplementedError("Topological dimension of mesh entities must be 1, 2 or 3.")
 
@@ -146,7 +146,7 @@ class Mesh(object):
 
     @staticmethod
     def _add_entity(entity, number, container, container_name):
-        if not number in container.keys():
+        if number not in container.keys():
             container[number] = entity
         else:
             raise Exception("There is already an entity with number {0:d} registered in container \"{1:s}\"!"

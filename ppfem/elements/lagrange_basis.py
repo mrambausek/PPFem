@@ -38,14 +38,14 @@ class LagrangeBasis(object):
             self._value = autowrap(self._L)
             self._grad = autowrap(sy.diff(self._L, x), args=(x,))
         else:
-            self._L = sy.Matrix([product(f, 1, index) * product(f, index+2, len(points)) for i in range(dimension)])
+            self._L = sy.Matrix([product(f, 1, index) * product(f, index+2, len(points)) for index in range(dimension)])
             self._value = autowrap(self._L, args=[x])
             self._grad = autowrap(
                 sy.Matrix([sy.diff(self._L[i], x) for i in range(dimension)]),
                 args=[x]
             )
 
-    def L(self):
+    def symbolic(self):
         return self._L
 
     def value(self, point):

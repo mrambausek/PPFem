@@ -20,8 +20,6 @@ from ppfem.elements.lagrange_elements import LagrangeLine
 from ppfem.geometry.mapping import FEMapping
 import scipy as sp
 
-from ppfem.geometry.point import Point
-
 
 class IsoparametricContinuousLagrange1d(MappedElement):
 
@@ -79,8 +77,8 @@ class IsoparametricContinuousLagrange1d(MappedElement):
         return self._ref_element.basis_function_values(ref_point)
 
     def shape_function_gradients(self, ref_point):
-        J_inv = self._mapping.inverse_jacobian(ref_point)
-        return self._ref_element.basis_function_gradients(ref_point, J_inv)
+        jac_inv = self._mapping.inverse_jacobian(ref_point)
+        return self._ref_element.basis_function_gradients(ref_point, jac_inv)
 
     def boundary_normal(self, local_boundary_index, boundary_ref_point):
         if self._space_dim > 1:
@@ -88,7 +86,7 @@ class IsoparametricContinuousLagrange1d(MappedElement):
         if local_boundary_index == 0:
             return sp.array([[-1]])
         elif local_boundary_index == 1:
-            return sp.array([[ 1]])
+            return sp.array([[1]])
 
     def boundary_orientation(self, local_boundary_index):
         return self._mesh_entity.get_sub_entity(local_boundary_index).orientation

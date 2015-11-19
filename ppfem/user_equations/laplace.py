@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from ppfem.fem.partial_differential_equation import PDE
-# import scipy as sp
 
 
 class Laplace(PDE):

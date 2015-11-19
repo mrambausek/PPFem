@@ -21,6 +21,7 @@ class Point(object):
 
     def __init__(self, *coords, index=None):
         self._coords = np.array(coords)
+        self._coords = self._coords.reshape((self._coords.size,))
         self.index = index
 
     def __getitem__(self, item):

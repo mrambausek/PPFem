@@ -26,10 +26,12 @@ from ppfem.mesh.mesh import Mesh
 from ppfem.geometry import Point, Vertex, Line, Face, Cell, Mapping
 from ppfem.fem.assembler import DefaultSystemAssembler
 from ppfem.fem.form import Functional, LinearForm, BilinearForm, FormCollection
-from ppfem.fem.function import FEFunction
+from ppfem.fem.function import FEFunction, Function
 from ppfem.fem.function_space import FunctionSpace
+from ppfem.fem.partial_differential_equation import PDE
 
 __all__ = ["Mesh", "Point", "Line", "Vertex", "Face", "Cell", "Mapping", "FunctionSpace", "Functional",
-           "LinearForm", "BilinearForm", "FormCollection", "DefaultSystemAssembler", "FEFunction"]
+           "LinearForm", "BilinearForm", "FormCollection", "DefaultSystemAssembler", "FEFunction", "Function",
+           "PDE"]
 
 __all__ += ppfem.user_elements.__all__ + ppfem.quadrature.__all__ + ppfem.user_equations.__all__

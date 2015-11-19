@@ -28,6 +28,9 @@ class LagrangeElement(ReferenceElement):
     def interpolate_function(self, function, mapping=None):
         """
         This implementation shows the characteristic property of Lagrange Elements!
+        :param function: a callable f(p) where p is a Point (or a coordinate array of size space_dim()) and the result
+        is of dimension dimension()
+        :param mapping: a Mapping instance to compute the "physical" coordinates of a point in reference space
         """
         if mapping is not None:
             points = mapping.map_points(self.get_support_points())

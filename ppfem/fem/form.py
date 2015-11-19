@@ -125,7 +125,9 @@ class Form(abc.ABC):
     def implements_quadrature_on(self, entity_type=None):
         """
         Implementation should give information whether a cell_linear_form etc is provided or not.
-        :param entity_type: Form.cell, .interior_faces, .exterior_faces to query if such integrals are computed.
+        :param entity_type: Form.cells, .interior_faces, .exterior_faces to query if such integrals are computed.
+        In this case 'cells' refers to the top level entities (in 1d these are lines); 'faces' denotes
+        the second highes entities.
         """
         raise Exception("Abstract method called!")
 
@@ -381,7 +383,7 @@ class BilinearForm(Form):
             [self.test_function_space.localize(mesh_entities[0]),
              self.test_function_space.localize(mesh_entities[1])],
             [self.trial_function_space.localize(mesh_entities[0]),
-             self.trial_function_space.localize(mesh_entities[1])]
+             self.trial_function_space.localize(mesh_entities[1])],
             [self._localize_fe_functions(mesh_entities[0]),
              self._localize_fe_functions(mesh_entities[1])],
             local_mappings,

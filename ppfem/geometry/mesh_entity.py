@@ -88,10 +88,10 @@ class MeshEntity(abc.ABC):
         return self._sub_entities[sub_entity_index]
 
     def _get_sub_data(self, local_sub_entity_vertices):
-        found = self._mesh.find_entities_with_vertices(local_sub_entity_vertices, self.topological_dim() - 1)
+        found = list(self._mesh.find_entities_with_vertices(local_sub_entity_vertices, self.topological_dim() - 1))
         if len(found) == 0:
             found.append(self._mesh.add_line(local_sub_entity_vertices))
-        elif len(found > 1):
+        elif len(found) > 1:
             raise Exception("More than one entity with the given vertex indices were found!")
 
         sub_data = SubEntity(found[0], found[0].ortientation(local_sub_entity_vertices))

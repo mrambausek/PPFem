@@ -46,12 +46,12 @@ class FEFunction(object):
 
     def set_dof_values(self, new_values):
         # TODO: add some checks
-        self._dof_values = new_values
+        self._dof_values[:] = new_values
 
     def localize(self, mesh_entity):
         elmt = self.function_space.get_element(mesh_entity)
-        return LocalFunction(elmt,
-                             self._dof_values[self.function_space.get_element_dof_index_array(elmt.index())])
+        return LocalFEFunction(elmt,
+                               self._dof_values[self.function_space.get_element_dof_index_array(elmt.index())])
 
     def get_element_dof_index_array(self, element_index):
         return self.function_space.get_element_dof_index_array(element_index)
@@ -65,8 +65,16 @@ class FEFunction(object):
     def get_subdomain(self):
         return self.function_space.get_subdomain()
 
+    def __call__(self, mesh_entity, ref_point, der=0):
+        if der == 0:
+            return self.localize(mesh_entity).function_value(ref_point)
+        elif der == 1:
+            return self.localize(mesh_entity).function_gradient(ref_point)
+        else:
+            raise NotImplementedError("Derivatives higher than '1' are not implemented for FEFunction.")
 
-class LocalFunction(object):
+
+class LocalFEFunction(object):
     def __init__(self, element, local_dof_values):
         self._element = element
         self._dof_values = local_dof_values
@@ -82,3 +90,24 @@ class LocalFunction(object):
             return self.function_value(ref_point)
         elif der == 1:
             return self.function_gradient(ref_point)
+
+
+class Function(object):
+    def __init__(self, function, function_space):
+        self.function_space = function_space
+        self.function = function
+
+    def __call__(self, mesh_entity, ref_point):
+        return self.function_space.evaluate_function(self.function, mesh_entity, ref_point)
+
+    def localize(self, mesh_entity):
+        return LocalFunction(self.function, self.function_space.localize(mesh_entity))
+
+
+class LocalFunction(object):
+    def __init__(self, function, local_function_space):
+        self._function = function
+        self._local_function_space = local_function_space
+
+    def __call__(self, ref_point):
+        return self._local_function_space.evaluate_function(self._function, ref_point)

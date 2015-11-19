@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import abc
-import scipy.sparse as sparse
 import scipy.sparse.linalg as spl
 
 
@@ -32,7 +31,7 @@ class LinearSolver(abc.ABC):
 class DirectSparseSolver(LinearSolver):
 
     def __init__(self):
-        pass
+        LinearSolver.__init__(self)
 
     def solve(self, lhs_matrix, lhs_vector, solution_vector):
-        solution_vector = spl.spsolve(lhs_matrix, lhs_vector)
+        solution_vector[:] = spl.spsolve(lhs_matrix, lhs_vector)
