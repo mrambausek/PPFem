@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import abc
-
+import scipy as sp
 
 def find_index_pair(pair, data):
     d_i = data[0]
@@ -59,6 +59,13 @@ class DefaultSystemAssembler(Assembler):
 
     @staticmethod
     def assemble_functionals(discrete_functional, forms, params=None):
+        """
+        Assembler functionals by adding the local values beginning with teh value "discrete_functional"
+        :param discrete_functional: a scalar value for the functional to start from
+        :param forms: a FormCollection
+        :param params: arbitrary params that are handled to the actual local data objects (CellEvalData* and friends)
+        :return: the sum over all functionals over their domains (usually a double/float)
+        """
         for f in forms.functional_iterator():
             # FIXME: check what the linear form actually provides!
             # TODO: implement assembly of interior and exterior face terms
@@ -114,7 +121,7 @@ class DefaultSystemAssembler(Assembler):
                             global_entries[1].append(J)
                         j += 1
                     i += 1
-        return global_entries
+        return sp.array(global_entries[0], dtype=sp.int64), sp.array(global_entries[1], dtype=sp.int64)
 
     @staticmethod
     def _assemble_local_cell_linear_form(local_linear_form, dof_index_array, global_linear_form):

@@ -75,24 +75,51 @@ class FEFunction(object):
 
 
 class LocalFEFunction(object):
+    """
+    Class for element-level operations of FEFuntion. Objects should be instatiated by calling localize()
+    on FEFunction objects.
+    """
     def __init__(self, element, local_dof_values):
         self._element = element
         self._dof_values = local_dof_values
 
     def function_value(self, ref_point):
+        """
+        Computes the function value at a given point. If the underlying element is a mapped element,
+        the point is expected to be in parameter space.
+        :param ref_point: of type Point or a 1d array
+        :return: a scalar of a numpy/scipy-array; depends on the underlying element.
+        """
         return self._element.function_value(self._dof_values, ref_point)
 
     def function_gradient(self, ref_point):
+        """
+        Computes the function gradient at a given point. If the underlying element is a mapped element,
+        the point is expected to be in parameter space.
+        :param ref_point: of type Point or a 1d array
+        :return: a numpy/scipy-array; depends on the underlying element.
+        """
         return self._element.function_gradient(self._dof_values, ref_point)
 
     def __call__(self, ref_point, der=0):
+        """
+        This is simply a short-hand for function_value and function_gradient.
+        See there for the details.
+        :param der: "0" means value, "1" means gradient
+        """
         if der == 0:
             return self.function_value(ref_point)
         elif der == 1:
             return self.function_gradient(ref_point)
 
 
-class Function(object):
+class FunctionEvaluator(object):
+    """
+    This class acts as a wrapper for functions that are not an elements of a FE function space.
+    Its only purpose is to provide an interface for function evaluations at points in parameter space such
+    that the interface is similart to FEFunction. However, there is only a call operator implemented, no derivatives!
+    Localization is provided following the general idea in PPFem.
+    """
     def __init__(self, function, function_space):
         self.function_space = function_space
         self.function = function
@@ -101,10 +128,14 @@ class Function(object):
         return self.function_space.evaluate_function(self.function, mesh_entity, ref_point)
 
     def localize(self, mesh_entity):
-        return LocalFunction(self.function, self.function_space.localize(mesh_entity))
+        return LocalFunctionEvaluator(self.function, self.function_space.localize(mesh_entity))
 
 
-class LocalFunction(object):
+class LocalFunctionEvaluator(object):
+    """
+    Class for element-level operations of FunctionEvaluator. Objects should be instatiated by calling localize()
+    on FunctionEvaluator objects.
+    """
     def __init__(self, function, local_function_space):
         self._function = function
         self._local_function_space = local_function_space

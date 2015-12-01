@@ -173,21 +173,47 @@ class LocalFunctionSpace(object):
         return self._element.interpolate_function(function)
 
     def shape_function_values(self, ref_point):
+        """
+        Computes the values of the shape functions at a given point.
+        For mapped elements, this point is expected to be in parameter space.
+        :param ref_point: of type Point or a 1d-array
+        :return: an array with the first axis correspondig to the local index of the shape function.
+        The remaining shape is the shape of the function value. This depends on the underlying element.
+        """
         return self._element.shape_function_values(ref_point)
 
     def shape_function_gradients(self, ref_point):
+        """
+        Computes the values of the shape functions at a given point.
+        For mapped elements, this point is expected to be in parameter space.
+        :param ref_point: of type Point or a 1d-array
+        :return: an array with the first axis correspondig to the local index of the shape function.
+        The remaining shape is the shape of the gradient of a shape function. This depends on the underlying element.
+        (numpy.array or scipy.array respectively)
+        """
         return self._element.shape_function_gradients(ref_point)
 
     def physical_coords(self, ref_point):
         return self._element.physical_coords(ref_point)
 
     def number_of_shape_functions(self):
+        """
+        The number of shape functions (from the underlying element). Shape functions may be
+        vector-valued, so function_dim() may be also useful for you.
+        :return: number of shape function (integer)
+        """
         return self._element.number_of_global_dofs()
 
     def function_dim(self):
+        """
+        :return: value dimenstion of shape functions (integer)
+        """
         return self._element.value_dimension()
 
     def function_gradient_shape(self):
+        """
+        :return: shape of the gradient of a shape function (tuple)
+        """
         return self._element.value_dimension(), self._element.topological_dimension()
 
     def evaluate_function(self, function, ref_point):

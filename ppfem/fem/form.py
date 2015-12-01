@@ -18,6 +18,17 @@ import abc
 
 
 class CellEvalDataBase(object):
+    """
+    A simple struct-like type aggregating objects/data for integration of Forms on element-level.
+    For the integration of *linear forms, have a look at the appropriate classes below.
+
+    The intention is that instances of this class hold purely local (element-level) data.
+    Thus, an assembler may ask a form to provide such data for that it can be used to compute
+    the local expression.
+
+    From a design perspective this functionaly could also be totally hidden from the assembler. This might change
+    in the future.
+    """
     def __init__(self, local_fe_functions, local_non_fe_functions, mapping, quadrature, params):
         self.local_fe_functions = local_fe_functions
         self.local_non_fe_functions = local_non_fe_functions
@@ -27,12 +38,18 @@ class CellEvalDataBase(object):
 
 
 class CellEvalDataLinearForm(CellEvalDataBase):
+    """
+    This class extends its parent to hold a localized function space (local_test_space).
+    """
     def __init__(self, local_test_space, local_fe_functions, local_non_fe_functions, mapping, quadrature, params):
         CellEvalDataBase.__init__(self, local_fe_functions, local_non_fe_functions, mapping, quadrature, params)
         self.local_test_space = local_test_space
 
 
 class CellEvalDataBilinearForm(CellEvalDataLinearForm):
+    """
+    This class extends its parent to hold one more localized function space (local_trial_space).
+    """
     def __init__(self, local_test_space, local_trial_space, local_fe_functions, local_non_fe_functions, mapping,
                  quadrature, params):
         CellEvalDataLinearForm.__init__(self, local_test_space, local_fe_functions, local_non_fe_functions, mapping,
@@ -89,6 +106,12 @@ class ExteriorFaceEvalDataBilinearForm(ExteriorFaceEvalDataLinearForm):
 
 
 class Form(abc.ABC):
+    """
+    An abstract class being the base for implementations of functional, linear forms and bilinear forms.
+    This base class provides some very basic interface that is extended by Functional, LinearForm and BilinearForm.
+    """
+
+    # some "constants"
     cells = "cells"
     interior_faces = "interior_faces"
     exterior_faces = "exterior_faces"
@@ -162,6 +185,8 @@ class Functional(Form):
     implemented. Have a look at the types
     `CellEvalDataBase`, `InteriorFaceEvalDataBase` and `ExteriorFaceEvalDataBase`
     for information that is available for these local contributions.
+    In case you are sure to do e.g, only cell-evaluations but no cell-boundary evaluations you may
+    omit the implementation of the "unneeded" methods via a "pass" or raising an NotImplementedError().
     """
     def __init__(self, quadrature, mapping=None, fe_functions=None, non_fe_functions=None, mesh=None, subdomain=None):
         Form.__init__(self, quadrature, fe_functions=fe_functions, non_fe_functions=non_fe_functions, mapping=mapping,
