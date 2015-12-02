@@ -27,6 +27,7 @@ class IsoparametricContinuousLagrange1d(MappedElement):
         MappedElement.__init__(self)
         self._dim = dim
         self._space_dim = space_dim
+        self._ref_map_element = None
         self._ref_element = None
         self._mesh_entity = None
         self._cache = {}
@@ -44,8 +45,9 @@ class IsoparametricContinuousLagrange1d(MappedElement):
     def set_mesh_entity(self, mesh_entity):
         self._mesh_entity = mesh_entity
         vertices = mesh_entity.vertices()
-        self._ref_element = LagrangeLine(len(vertices) - 1, self._space_dim)
-        self._mapping = FEMapping(self._ref_element)
+        self._ref_map_element = LagrangeLine(len(vertices) - 1, self._space_dim)
+        self._ref_element = LagrangeLine(len(vertices) - 1, self._dim)
+        self._mapping = FEMapping(self._ref_map_element)
         self._mapping.set_mesh_entity(mesh_entity)
 
     def set_mapping(self, mapping):
@@ -91,7 +93,7 @@ class IsoparametricContinuousLagrange1d(MappedElement):
     def boundary_orientation(self, local_boundary_index):
         return self._mesh_entity.get_sub_entity(local_boundary_index).orientation
 
-    def physical_coords(self, ref_point):
+    def physical_point(self, ref_point):
         return self._mapping.map_point(ref_point)
 
     def director(self, ref_point):

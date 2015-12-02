@@ -87,7 +87,7 @@ class PhysicalElement(abc.ABC):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod
-    def physical_coords(self, ref_point):
+    def physical_point(self, ref_point):
         raise Exception('Abstract method called!')
 
     @abc.abstractmethod

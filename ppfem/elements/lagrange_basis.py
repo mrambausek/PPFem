@@ -15,7 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sympy as sy
-from sympy.utilities.autowrap import autowrap
+
+# disabled because of setup problems on windows
+# from sympy.utilities.autowrap import autowrap
+from sympy.utilities import lambdify
 
 
 def product(factors, a, b):
@@ -35,15 +38,13 @@ class LagrangeBasis(object):
 
         if dimension == 1:
             self._L = product(f, 1, index) * product(f, index+2, len(points))
-            self._value = autowrap(self._L)
-            self._grad = autowrap(sy.diff(self._L, x), args=(x,))
+            self._value = lambdify([x], self._L)
+            self._grad = lambdify([x], sy.diff(self._L, x))
         else:
-            self._L = sy.Matrix([product(f, 1, index) * product(f, index+2, len(points)) for index in range(dimension)])
-            self._value = autowrap(self._L, args=[x])
-            self._grad = autowrap(
-                sy.Matrix([sy.diff(self._L[i], x) for i in range(dimension)]),
-                args=[x]
-            )
+            self._L = sy.Matrix([product(f, 1, index) * product(f, index+2, len(points))
+                                 for index in range(dimension)])
+            self._value = lambdify([x], self._L)
+            self._grad = lambdify([x], sy.Matrix([sy.diff(self._L[i], x) for i in range(dimension)]))
 
     def symbolic(self):
         return self._L

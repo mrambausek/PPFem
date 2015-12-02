@@ -45,6 +45,13 @@ class FunctionSpace(object):
         if mapping is not None:
             self._element.set_mapping(mapping)
 
+        # try to set the mapping via setting the mesh entity (should work at least for some elements)
+        m = self._element.get_mapping()
+        if m is None and self.storage_ready:
+            for e in self.mesh_entity_iterator():
+                self._element.set_mesh_entity(e)
+                break
+
     def _setup_storage(self):
         for v in self._mesh.vertices():
             self._vertex_dof_map[v.global_index()] = []
@@ -57,8 +64,10 @@ class FunctionSpace(object):
         self._subdomain = sub_domain
         self._setup_storage()
 
-    def get_mapping(self):
+    def get_mapping(self, mesh_entity=None):
         if isinstance(self._element, MappedElement):
+            if mesh_entity is not None:
+                self._element.set_mesh_entity(mesh_entity)
             return self._element.get_mapping()
         else:
             return None
@@ -194,7 +203,7 @@ class LocalFunctionSpace(object):
         return self._element.shape_function_gradients(ref_point)
 
     def physical_coords(self, ref_point):
-        return self._element.physical_coords(ref_point)
+        return self._element.physical_point(ref_point)
 
     def number_of_shape_functions(self):
         """

@@ -52,10 +52,18 @@ class LagrangeElement(ReferenceElement):
             return np.dot(self.basis_function_gradients(point, jacobian_inv=jacobian_inv).reshape(dof_values.shape).T,
                           dof_values)
         elif self.space_dim() > 1:
+            #FIXME: shape problems
+            raise NotImplementedError()
+            print('1', dof_values.shape)
+            print('2', self.basis_function_gradients(point, jacobian_inv=jacobian_inv).shape)
             return np.einsum('ijk,ijkl->jkl',
                              dof_values,
                              self.basis_function_gradients(point, jacobian_inv=jacobian_inv))
         elif self.space_dim() == 1:
+            #FIXME: shape problems
+            raise NotImplementedError()
+            print('1', dof_values.shape)
+            print('2', self.basis_function_gradients(point, jacobian_inv=jacobian_inv).shape)
             return np.einsum('ijk,ijk->jk',
                              dof_values,
                              self.basis_function_gradients(point, jacobian_inv=jacobian_inv))
