@@ -29,9 +29,10 @@ from ppfem.fem.form import Functional, LinearForm, BilinearForm, FormCollection
 from ppfem.fem.function import FEFunction, FunctionEvaluator
 from ppfem.fem.function_space import FunctionSpace
 from ppfem.fem.partial_differential_equation import PDE
+from ppfem.fem.variational_problem import VariationalProblem
 
 __all__ = ["Mesh", "Point", "Line", "Vertex", "Face", "Cell", "Mapping", "FunctionSpace", "Functional",
            "LinearForm", "BilinearForm", "FormCollection", "DefaultSystemAssembler", "FEFunction", "FunctionEvaluator",
-           "PDE"]
+           "PDE", "VariationalProblem"]
 
 __all__ += ppfem.user_elements.__all__ + ppfem.quadrature.__all__ + ppfem.user_equations.__all__

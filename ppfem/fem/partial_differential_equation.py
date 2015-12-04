@@ -18,23 +18,9 @@ import ppfem.fem.form as form
 
 
 class PDE(form.LinearForm, form.BilinearForm):
+    """A class implementing LinearForm and BilinearForm."""
     def __init__(self, test_function_space, trial_function_space, quadrature, fe_functions=None, non_fe_functions=None,
                  mapping=None, mesh=None, subdomain=None):
-
-        form.LinearForm.__init__(self, test_function_space, quadrature, fe_functions=fe_functions,
-                                 non_fe_functions=non_fe_functions, mapping=mapping, mesh=mesh, subdomain=subdomain)
-
-        form.BilinearForm.__init__(self, test_function_space, trial_function_space, quadrature,
-                                   fe_functions=fe_functions, non_fe_functions=non_fe_functions, mapping=mapping,
-                                   mesh=mesh, subdomain=subdomain)
-
-
-class VariationalProblem(form.Functional, form.LinearForm, form.BilinearForm):
-    def __init__(self, test_function_space, trial_function_space, quadrature, fe_functions=None, non_fe_functions=None,
-                 mapping=None, mesh=None, subdomain=None):
-
-        form.Functional.__init__(self, quadrature, fe_functions=fe_functions, non_fe_functions=non_fe_functions,
-                                mapping=mapping, mesh=mesh, subdomain=subdomain)
 
         form.LinearForm.__init__(self, test_function_space, quadrature, fe_functions=fe_functions,
                                  non_fe_functions=non_fe_functions, mapping=mapping, mesh=mesh, subdomain=subdomain)

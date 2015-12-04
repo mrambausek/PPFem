@@ -62,6 +62,9 @@ class FEFunction(object):
     def get_mesh(self):
         return self.function_space.get_mesh()
 
+    def set_mesh(self, mesh, subdomain=None):
+        self.function_space.set_mesh(mesh, subdomain=subdomain)
+
     def get_subdomain(self):
         return self.function_space.get_subdomain()
 
@@ -129,6 +132,15 @@ class FunctionEvaluator(object):
         """
         self.function_space = function_space
         self.function = function
+
+    def get_mapping(self):
+        return self.function_space.get_mapping()
+
+    def get_mesh(self):
+        return self.function_space.get_mesh()
+
+    def set_mesh(self, mesh, subdomain=None):
+        self.function_space.set_mesh(mesh, subdomain=subdomain)
 
     def __call__(self, mesh_entity, ref_point):
         """

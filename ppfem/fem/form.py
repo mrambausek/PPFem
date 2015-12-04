@@ -140,7 +140,17 @@ class Form(abc.ABC):
                 if hasattr(fef, "get_mapping"):
                     try:
                         self.mapping = fef.get_mapping()
-                        break
+                        if self.mapping is not None:
+                            break
+                    except TypeError:
+                        pass
+
+            for fef in self.non_fe_functions.values():
+                if hasattr(fef, "get_mapping"):
+                    try:
+                        self.mapping = fef.get_mapping()
+                        if self.mapping is not None:
+                            break
                     except TypeError:
                         pass
 
@@ -160,9 +170,14 @@ class Form(abc.ABC):
     def set_mesh(self, mesh, subdomain=None):
         self._mesh = mesh
         self._subdomain = subdomain
+
         for fef in self.fe_functions.values():
             if hasattr(fef, "set_mesh"):
-                self.mapping = fef.set_mesh(mesh, subdomain)
+                fef.set_mesh(mesh, subdomain)
+
+        for fef in self.non_fe_functions.values():
+            if hasattr(fef, "set_mesh"):
+                fef.set_mesh(mesh, subdomain)
 
     @abc.abstractmethod
     def implements_quadrature_on(self, entity_type=None):
@@ -189,10 +204,30 @@ class Functional(Form):
     omit the implementation of the "unneeded" methods via a "pass" or raising an NotImplementedError().
     """
     def __init__(self, quadrature, mapping=None, fe_functions=None, non_fe_functions=None, mesh=None, subdomain=None):
+        """
+        Constructor
+        :param quadrature: Quadrature instance
+        :param mapping: FEMapping instance. If None, then it is tried to get one from fe_functions or non_fe_functions.
+        :param fe_functions: A dict holding objects of type FEFunction.
+        The keys of this dict will also be the keys of cell_eval_data.local_fe_functions in the "local" routines.
+        :param non_fe_functions: a dict holding objects of type FunctionEvaluator
+         The keys of this dict will also be the keys of cell_eval_data.local_non_fe_functions in the "local" routines.
+        :param mesh: A Mesh instance. If given, the FunctionSpaces of the fe_functions and non_fe_functions are changed
+        to use this mesh.
+        :param subdomain: A domain indicator (integer) that is used to filter the entities of the mesh,
+        :return: an instance of Functional
+        """
         Form.__init__(self, quadrature, fe_functions=fe_functions, non_fe_functions=non_fe_functions, mapping=mapping,
                       mesh=mesh, subdomain=subdomain)
         if self._mesh is None:
             for fef in self.fe_functions.values():
+                if hasattr(fef, "get_mesh") and hasattr(fef, "get_subdomain"):
+                    try:
+                        self.set_mesh(fef.get_mesh(), fef.get_subdomain())
+                        break
+                    except TypeError:
+                        pass
+            for fef in self.non_fe_functions.values():
                 if hasattr(fef, "get_mesh") and hasattr(fef, "get_subdomain"):
                     try:
                         self.set_mesh(fef.get_mesh(), fef.get_subdomain())
@@ -279,6 +314,19 @@ class LinearForm(Form):
     """
     def __init__(self, test_function_space, quadrature, fe_functions=None, non_fe_functions=None, mapping=None,
                  mesh=None, subdomain=None):
+        """
+        Constructor.
+        :param test_function_space: The function space for the test functions.
+        :param mapping: FEMapping instance. If None, then it is tried to get one from fe_functions or non_fe_functions.
+        :param fe_functions: A dict holding objects of type FEFunction.
+        The keys of this dict will also be the keys of cell_eval_data.local_fe_functions in the "local" routines.
+        :param non_fe_functions: a dict holding objects of type FunctionEvaluator
+         The keys of this dict will also be the keys of cell_eval_data.local_non_fe_functions in the "local" routines.
+        :param mesh: A Mesh instance. If given, the FunctionSpaces of the fe_functions and non_fe_functions are changed
+        to use this mesh.
+        :param subdomain: A domain indicator (integer) that is used to filter the entities of the mesh,
+        :return: an instance of LinearForm
+        """
         Form.__init__(self, quadrature, mapping=mapping, fe_functions=fe_functions, non_fe_functions=non_fe_functions)
         self.test_function_space = test_function_space
         if self.mapping is None:
@@ -379,6 +427,20 @@ class BilinearForm(Form):
     """
     def __init__(self, test_function_space, trial_function_space, quadrature, mapping=None, fe_functions=None,
                  non_fe_functions=None, mesh=None, subdomain=None):
+        """
+        Constructor.
+        :param test_function_space: The function space for the test functions.
+        :param trial_function_space: The function space for the trial functions.
+        :param mapping: FEMapping instance. If None, then it is tried to get one from fe_functions or non_fe_functions.
+        :param fe_functions: A dict holding objects of type FEFunction.
+        The keys of this dict will also be the keys of cell_eval_data.local_fe_functions in the "local" routines.
+        :param non_fe_functions: a dict holding objects of type FunctionEvaluator
+         The keys of this dict will also be the keys of cell_eval_data.local_non_fe_functions in the "local" routines.
+        :param mesh: A Mesh instance. If given, the FunctionSpaces of the fe_functions and non_fe_functions are changed
+        to use this mesh.
+        :param subdomain: A domain indicator (integer) that is used to filter the entities of the mesh,
+        :return: an instance of Functional
+        """
         Form.__init__(self, quadrature, mapping=mapping, fe_functions=fe_functions, non_fe_functions=non_fe_functions)
         self.test_function_space = test_function_space
         self.trial_function_space = trial_function_space
