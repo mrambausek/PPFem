@@ -121,10 +121,24 @@ class FunctionEvaluator(object):
     Localization is provided following the general idea in PPFem.
     """
     def __init__(self, function, function_space):
+        """
+        Constructor
+        :param function: a callable of kind f(x) where x is of type ppfem.geometry.point.Point
+        :param function_space: an instance of FunctionSpace
+        :return: an instance of FunctionEvaluator
+        """
         self.function_space = function_space
         self.function = function
 
     def __call__(self, mesh_entity, ref_point):
+        """
+        Evaluates the wrapped function a the physical point that is obtained by mappping "ref_point" (an array
+        or instance of Point) from the reference space to "phasical" space using the mapping between
+        the given mesh_entity and the reference cell.
+        :param mesh_entity: a mesh entity Line, Face, Cell
+        :param ref_point: ana array or Point specifying a point in rerefence space
+        :return: the return value of the wrapped function
+        """
         return self.function_space.evaluate_function(self.function, mesh_entity, ref_point)
 
     def localize(self, mesh_entity):
@@ -141,4 +155,11 @@ class LocalFunctionEvaluator(object):
         self._local_function_space = local_function_space
 
     def __call__(self, ref_point):
+        """
+        Evaluates the wrapped function a the physical point that is obtained by mappping "ref_point" (an array
+        or instance of Point). Since a local function space is already associated to a mesh entity,
+        ref_point is the only argument needed.
+        :param ref_point: ana array or Point specifying a point in rerefence space
+        :return: the return value of the wrapped function
+        """
         return self._local_function_space.evaluate_function(self._function, ref_point)

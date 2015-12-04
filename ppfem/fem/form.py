@@ -481,15 +481,34 @@ class BilinearForm(Form):
 
 
 class FormCollection(object):
+    """
+    This class represents a collection of forms by means of iterators. It is possible to add forms to and remove
+    forms from the collections. Access to elements is only provided via iterators over dict-values.
+    These iterators are fitlered iterators and are implemented for functionals, linear forms and bilinear forms.
+
+    The only purpose of this class is to aggregate forms of different kind in a siingle structure and provide
+    iterators of them to e.g. an assembly algortihm.
+    """
     def __init__(self, form_dict=None):
         self._form_dict = form_dict
         if form_dict is None:
             self._form_dict = {}
 
     def set_form(self, key, form):
+        """
+        Register the given form under key.
+        :param key: almost anything, but it is a good idea to provide an integer as index or a "name" of the form
+        :param form: something that inherits from Form.
+        :return: None
+        """
         self._form_dict[key] = form
 
     def unset_form(self, key):
+        """
+        Removes (and returns) the form stored under key from the collection.
+        :param key: the key of the object that is to be removed.
+        :return: the object stored under key
+        """
         self._form_dict.pop(key)
 
     def functional_iterator(self):

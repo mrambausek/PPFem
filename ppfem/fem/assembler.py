@@ -60,7 +60,7 @@ class DefaultSystemAssembler(Assembler):
     @staticmethod
     def assemble_functionals(discrete_functional, forms, params=None):
         """
-        Assembler functionals by adding the local values beginning with teh value "discrete_functional"
+        Assembles functionals by adding the local values beginning with the value "discrete_functional"
         :param discrete_functional: a scalar value for the functional to start from
         :param forms: a FormCollection
         :param params: arbitrary params that are handled to the actual local data objects (CellEvalData* and friends)
@@ -77,6 +77,13 @@ class DefaultSystemAssembler(Assembler):
 
     @staticmethod
     def assemble_linear_forms(discrete_linear_form, forms, params=None):
+        """
+        Assembles linear forms by adding the local values (arrays) to "discrete_linear_form"
+        :param discrete_linear_form: an 1d-array-like type that supports element write access via [i]
+        :param forms: a FormCollection
+        :param params: arbitrary params that are handled to the actual local data objects (CellEvalData* and friends)
+        :return: None (The result is written to discrete_linear_form.)
+        """
         for L in forms.linear_form_iterator():
             # FIXME: check what the linear form actually provides!
             # TODO: implement assembly of interior and exterior face terms
@@ -91,6 +98,13 @@ class DefaultSystemAssembler(Assembler):
 
     @staticmethod
     def assemble_bilinear_forms(discrete_bilinear_form, forms, params=None):
+        """
+        Assembles bilinear forms by adding the local values (matrices) to "discrete_bilinear_form"
+        :param discrete_bilinear_form: an 2d-array-like type that supports element write access via [i,j]
+        :param forms: a FormCollection
+        :param params: arbitrary params that are handled to the actual local data objects (CellEvalData* and friends)
+        :return: None (The result is written to discrete_bilinear_form.)
+        """
         for a in forms.bilinear_form_iterator():
             # FIXME: check what the bilinear form actually provides!
             # TODO: implement assembly of interior and exterior face terms
@@ -105,6 +119,12 @@ class DefaultSystemAssembler(Assembler):
                 )
 
     def get_sparsity(self, forms):
+        """
+        Returns the sparsity pattern needed to store all the bilinear_forms contained in forms in a sparse matrix.
+        :param forms: a FormCollection
+        :return: the sparsity pattern as a 2d-array of which the first row corresponds to row indices and the second
+        row to column indices.
+        """
         global_entries = ([], [])
 
         for a in forms.bilinear_form_iterator():
