@@ -59,9 +59,9 @@ class FunctionSpace(object):
         self.number_of_dofs = self._generate_assembly_data()
         self.storage_ready = True
 
-    def set_mesh(self, mesh, sub_domain=None):
+    def set_mesh(self, mesh, subdomain=None):
         self._mesh = mesh
-        self._subdomain = sub_domain
+        self._subdomain = subdomain
         self._setup_storage()
 
     def get_mapping(self, mesh_entity=None):

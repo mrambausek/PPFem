@@ -237,6 +237,12 @@ class Functional(Form):
 
     @abc.abstractmethod
     def local_cell_functional(self, cell_eval_data_functional):
+        """
+        To be implemented in derived classes!
+        Compute the local contribution to the functional from the *interior* of a cell.
+        :param cell_eval_data_functional: of type CellEvalDataBase
+        :return: local funktional (in most cases an integral over the interior of a cell); float-type
+        """
         raise Exception("Abstract method called!")
 
     @abc.abstractmethod
@@ -338,6 +344,12 @@ class LinearForm(Form):
 
     @abc.abstractmethod
     def local_cell_linear_form(self, cell_eval_data_linear_form):
+        """
+        To be implemented in derived classes!
+        Compute the local contribution to the linear form from the *interior* of a cell.
+        :param cell_eval_data_linear_form: of type CellEvalDataLinearForm
+        :return: local linear form (in most cases an integral over the interior of a cell); 1d-array
+        """
         raise Exception("Abstract method called!")
 
     @abc.abstractmethod
@@ -454,6 +466,12 @@ class BilinearForm(Form):
 
     @abc.abstractmethod
     def local_cell_bilinear_form(self, cell_eval_data_bilinear_form):
+        """
+        To be implemented in derived classes!
+        Compute the local contribution to the bilinear form from the *interior* of a cell.
+        :param cell_eval_data_bilinear_form: of type CellEvalDataBilinearForm
+        :return: local bilinear form (in most cases an integral over the interior of a cell); 2d-array (Matrix)
+        """
         raise Exception("Abstract method called!")
 
     @abc.abstractmethod
