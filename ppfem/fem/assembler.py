@@ -16,6 +16,7 @@
 
 import abc
 import scipy as sp
+from ppfem.fem.function import FEFunction
 
 def find_index_pair(pair, data):
     d_i = data[0]
@@ -142,6 +143,29 @@ class DefaultSystemAssembler(Assembler):
                         j += 1
                     i += 1
         return sp.array(global_entries[0], dtype=sp.int64), sp.array(global_entries[1], dtype=sp.int64)
+
+    @staticmethod
+    def integrate_essential_bc(self, system_matrix, system_rhs, function_space, indicator_func, bc_func):
+        FE_indicator = FEFunction(function_space)
+        FE_bc = FEFunction(function_space)
+
+        def _ind(x):
+            if indicator_func(x):
+                return 1
+            else:
+                return 0
+
+        FE_indicator.set_dof_values_from_interpolation(_ind)
+        FE_bc.set_dof_values_from_interpolation(bc_func)
+        constrained_indices = sp.where(FE_indicator == 1)
+        constrained_dof_values = FE_bc.dof_values()[constrained_indices]
+
+        for iv in zip(constrained_indices, constrained_dof_values):
+            i, value = iv
+            system_matrix[i, :] = 0.0
+            system_matrix[:, i] = 0.0
+            system_matrix[i, i] = 1.0
+            system_rhs[i] = value
 
     @staticmethod
     def _assemble_local_cell_linear_form(local_linear_form, dof_index_array, global_linear_form):
