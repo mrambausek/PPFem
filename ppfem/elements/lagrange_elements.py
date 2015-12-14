@@ -21,7 +21,6 @@ import numpy as np
 
 
 class LagrangeElement(ReferenceElement):
-
     def __init__(self, degree, dimension=1):
         ReferenceElement.__init__(self, degree, dimension)
 
@@ -44,7 +43,9 @@ class LagrangeElement(ReferenceElement):
         if self._dimension == 1:
             return np.dot(self.basis_function_values(point).reshape(1, self._n_bases), dof_values)
         else:
-            return np.einsum('ijk,ijk->jk', dof_values, self.basis_function_values(point))
+            return np.einsum('ijk,ijk->j',
+                             dof_values.reshape(self._n_bases, self._dimension, 1),
+                             self.basis_function_values(point))
 
     def function_gradient(self, dof_values, point, jacobian_inv=None):
         # first array axis corresponds to basis function!
@@ -52,25 +53,20 @@ class LagrangeElement(ReferenceElement):
             return np.dot(self.basis_function_gradients(point, jacobian_inv=jacobian_inv).reshape(dof_values.shape).T,
                           dof_values)
         elif self.space_dim() > 1:
-            #FIXME: shape problems
-            raise NotImplementedError()
+            # FIXME: shape problems
             print('1', dof_values.shape)
             print('2', self.basis_function_gradients(point, jacobian_inv=jacobian_inv).shape)
+            raise NotImplementedError("Fix the shapes!")
             return np.einsum('ijk,ijkl->jkl',
                              dof_values,
                              self.basis_function_gradients(point, jacobian_inv=jacobian_inv))
         elif self.space_dim() == 1:
-            #FIXME: shape problems
-            raise NotImplementedError()
-            print('1', dof_values.shape)
-            print('2', self.basis_function_gradients(point, jacobian_inv=jacobian_inv).shape)
             return np.einsum('ijk,ijk->jk',
-                             dof_values,
+                             dof_values.reshape(self._n_bases, self._dimension, 1),
                              self.basis_function_gradients(point, jacobian_inv=jacobian_inv))
 
 
 class LagrangeLine(LagrangeElement):
-
     def __init__(self, degree, dimension=1):
         LagrangeElement.__init__(self, degree, dimension=dimension)
 
@@ -84,7 +80,7 @@ class LagrangeLine(LagrangeElement):
 
     def get_support_points(self):
         n = self._degree + 1
-        return [Point(-1), Point(1)] + [Point(-1 + i * 2/(n-1), index=i) for i in range(1, n-1)]
+        return [Point(-1), Point(1)] + [Point(-1 + i * 2 / (n - 1), index=i) for i in range(1, n - 1)]
 
     @staticmethod
     def space_dim():

@@ -42,7 +42,7 @@ class LagrangeBasis(object):
             self._grad = lambdify([x], sy.diff(self._L, x))
         else:
             self._L = sy.Matrix([product(f, 1, index) * product(f, index+2, len(points))
-                                 for index in range(dimension)])
+                                 for i in range(dimension)])
             self._value = lambdify([x], self._L)
             self._grad = lambdify([x], sy.Matrix([sy.diff(self._L[i], x) for i in range(dimension)]))
 
