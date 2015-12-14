@@ -80,7 +80,7 @@ class DefaultSystemAssembler(Assembler):
     def assemble_linear_forms(discrete_linear_form, forms, params=None):
         """
         Assembles linear forms by adding the local values (arrays) to "discrete_linear_form"
-        :param discrete_linear_form: an 1d-array-like type that supports element write access via [i]
+        :param discrete_linear_form: [in/out] an 1d-array-like type that supports element write access via [i]
         :param forms: a FormCollection
         :param params: arbitrary params that are handled to the actual local data objects (CellEvalData* and friends)
         :return: None (The result is written to discrete_linear_form.)
@@ -101,7 +101,7 @@ class DefaultSystemAssembler(Assembler):
     def assemble_bilinear_forms(discrete_bilinear_form, forms, params=None):
         """
         Assembles bilinear forms by adding the local values (matrices) to "discrete_bilinear_form"
-        :param discrete_bilinear_form: an 2d-array-like type that supports element write access via [i,j]
+        :param discrete_bilinear_form: [in/out] an 2d-array-like type that supports element write access via [i,j]
         :param forms: a FormCollection
         :param params: arbitrary params that are handled to the actual local data objects (CellEvalData* and friends)
         :return: None (The result is written to discrete_bilinear_form.)
@@ -145,7 +145,18 @@ class DefaultSystemAssembler(Assembler):
         return sp.array(global_entries[0], dtype=sp.int64), sp.array(global_entries[1], dtype=sp.int64)
 
     @staticmethod
-    def integrate_essential_bc(self, system_matrix, system_rhs, function_space, indicator_func, bc_func):
+    def integrate_essential_bc(system_matrix, system_rhs, function_space, indicator_func, bc_func):
+        """
+        Integrate simple essential boundary conditions. Simple means bcs like u=u(x).
+        Note that the arguments system_matrix, system_rhs and function_space have to be consistent!
+
+        :param system_matrix: [in/out] A (sparse) matrix representing the assembled system matrix.
+        :param system_rhs: [in/out] A vector (1d-array) representing the assembled system right-hand-side vector.
+        :param function_space: The function space for the constrained quantity.
+        :param indicator_func: A function f(x) that returns 'True' if the solution is constrained at the point 'x'.
+        :param bc_func: A function u(x) that returns the value of the solution 'u' at the point 'x'
+        :return: Nothing. System_matrix and system_rhs are manipulated.
+        """
         FE_indicator = FEFunction(function_space)
         FE_bc = FEFunction(function_space)
 
@@ -157,13 +168,14 @@ class DefaultSystemAssembler(Assembler):
 
         FE_indicator.set_dof_values_from_interpolation(_ind)
         FE_bc.set_dof_values_from_interpolation(bc_func)
-        constrained_indices = sp.where(FE_indicator == 1)
+        constrained_indices = sp.where(FE_indicator.dof_values() == 1)
         constrained_dof_values = FE_bc.dof_values()[constrained_indices]
 
         for iv in zip(constrained_indices, constrained_dof_values):
             i, value = iv
-            system_matrix[i, :] = 0.0
-            system_matrix[:, i] = 0.0
+            for ii in range(system_matrix.shape[0]):
+                system_matrix[i, ii] = 0.0
+                system_matrix[ii, i] = 0.0
             system_matrix[i, i] = 1.0
             system_rhs[i] = value
 
