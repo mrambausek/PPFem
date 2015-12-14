@@ -153,8 +153,11 @@ class DefaultSystemAssembler(Assembler):
         :param system_matrix: [in/out] A (sparse) matrix representing the assembled system matrix.
         :param system_rhs: [in/out] A vector (1d-array) representing the assembled system right-hand-side vector.
         :param function_space: The function space for the constrained quantity.
-        :param indicator_func: A function f(x) that returns 'True' if the solution is constrained at the point 'x'.
-        :param bc_func: A function u(x) that returns the value of the solution 'u' at the point 'x'
+        :param indicator_func: A function f(x) that returns 'True' for components of the solution is
+        constrained at the point 'x'. In case of a scalar solution this function returns a scalar,
+        otherwise a list/an array is to be returned,
+        :param bc_func: A function u(x) that returns the value of the solution 'u' at the point 'x'.
+        In line with indicator_func and the shape of the solution this is either scalar or a list/an array.
         :return: Nothing. System_matrix and system_rhs are manipulated.
         """
         FE_indicator = FEFunction(function_space)
