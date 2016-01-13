@@ -171,10 +171,12 @@ class DefaultSystemAssembler(Assembler):
         constrained_indices = sp.where(FE_indicator.dof_values() == 1)
         constrained_dof_values = FE_bc.dof_values()[constrained_indices]
 
-        for iv in zip(constrained_indices, constrained_dof_values):
+        for iv in zip(constrained_indices[0], constrained_dof_values):
             i, value = iv
+            print(iv)
             for ii in range(system_matrix.shape[0]):
                 system_matrix[i, ii] = 0.0
+                system_rhs[ii] -= value * system_matrix[ii, i]
                 system_matrix[ii, i] = 0.0
             system_matrix[i, i] = 1.0
             system_rhs[i] = value
