@@ -164,10 +164,7 @@ class DefaultSystemAssembler(Assembler):
         FE_bc = FEFunction(function_space)
 
         def _ind(x):
-            if indicator_func(x):
-                return 1
-            else:
-                return 0
+            return indicator_func(x).astype(sp.float64)
 
         FE_indicator.set_dof_values_from_interpolation(_ind)
         FE_bc.set_dof_values_from_interpolation(bc_func)
@@ -186,7 +183,7 @@ class DefaultSystemAssembler(Assembler):
     def _assemble_local_cell_linear_form(local_linear_form, dof_index_array, global_linear_form):
         i = 0
         for I in dof_index_array:
-            global_linear_form[I] = local_linear_form[i]
+            global_linear_form[I] += local_linear_form[i]
             i += 1
 
     @staticmethod
@@ -196,6 +193,6 @@ class DefaultSystemAssembler(Assembler):
         for I in test_dof_index_array:
             j = 0
             for J in trial_dof_index_array:
-                global_bilinear_form[I, J] = local_bilinear_form[i, j]
+                global_bilinear_form[I, J] += local_bilinear_form[i, j]
                 j += 1
             i += 1
