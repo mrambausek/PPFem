@@ -53,17 +53,31 @@ class SimpleLinearProblemSolver(object):
         self._rhs_vector = sp.zeros(self._lhs_matrix.shape[1])
         self._solution = sp.zeros_like(self._rhs_vector)
 
-    def solve(self, params=None):
+    def solve(self, state=None, params=None):
         """
         The actual solving of the linear system happens here.
         :param params: params to be handed over to the assembler routine.
-        :return:the solution
+        :param state: an FEFunction representing the current state.
+        :return:the solution (an array) or the updated state (an FEFunction) if given as keyword argument.
         """
+        self._lhs_matrix.data[:] = 0.0
+        self._rhs_vector[:] = 0.0
+
         self._assembler.assemble_bilinear_forms(self._lhs_matrix, self._forms, params=params)
         self._assembler.assemble_linear_forms(self._rhs_vector, self._forms, params=params)
         for bc in self._bcs:
             self._assembler.integrate_essential_bc(self._lhs_matrix, self._rhs_vector, self._V_trial,
-                                                   bc['indicator'], bc['func'])
+                                                   bc['indicator'], bc['func'],
+                                                   current_state=state)
 
         self._linear_solver.solve(self._lhs_matrix, self._rhs_vector, self._solution)
-        return self._solution
+        # print()
+        # print(self._lhs_matrix.toarray())
+        # print(self._rhs_vector)
+        # print(self._solution)
+        # print()
+        if state is not None:
+            state.set_dof_values(state.dof_values() + self._solution)
+            return state
+        else:
+            return self._solution

@@ -150,7 +150,8 @@ class DefaultSystemAssembler(Assembler):
         return sp.array(global_entries[0], dtype=sp.int64), sp.array(global_entries[1], dtype=sp.int64)
 
     @staticmethod
-    def integrate_essential_bc(system_matrix, system_rhs, function_space, indicator_func, bc_func):
+    def integrate_essential_bc(system_matrix, system_rhs, function_space, indicator_func, bc_func,
+                               current_state=None):
         """
         Integrate simple essential boundary conditions. Simple means bcs like u=u(x).
         Note that the arguments system_matrix, system_rhs and function_space have to be consistent!
@@ -165,6 +166,8 @@ class DefaultSystemAssembler(Assembler):
         otherwise a list/an array is to be returned,
         :param bc_func: A function u(x) that returns the value of the solution 'u' at the point 'x'.
         In line with indicator_func and the shape of the solution this is either scalar or a list/an array.
+        :param current_state: a FEFunction holding the current state of the system. This can be used to
+         recompute the essential boundary condition. Especially useful for nonlinear FEM.
         :return: Nothing. System_matrix and system_rhs are manipulated.
         """
         FE_indicator = FEFunction(function_space)
@@ -175,8 +178,13 @@ class DefaultSystemAssembler(Assembler):
 
         FE_indicator.set_dof_values_from_interpolation(_ind)
         FE_bc.set_dof_values_from_interpolation(bc_func)
+
+        if current_state is not None:
+            FE_bc.set_dof_values(FE_bc.dof_values() - current_state.dof_values())
+
         constrained_indices = sp.where(FE_indicator.dof_values() == 1)
         constrained_dof_values = FE_bc.dof_values()[constrained_indices]
+        #print(constrained_dof_values)
 
         for iv in zip(constrained_indices[0], constrained_dof_values):
             i, value = iv
