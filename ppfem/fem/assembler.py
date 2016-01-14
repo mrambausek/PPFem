@@ -173,7 +173,6 @@ class DefaultSystemAssembler(Assembler):
 
         for iv in zip(constrained_indices[0], constrained_dof_values):
             i, value = iv
-            print(iv)
             for ii in range(system_matrix.shape[0]):
                 system_matrix[i, ii] = 0.0
                 system_rhs[ii] -= value * system_matrix[ii, i]
