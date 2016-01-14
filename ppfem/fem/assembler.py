@@ -53,6 +53,11 @@ class Assembler(abc.ABC):
     def assemble_bilinear_forms(discrete_bilinear_form, forms, params=None):
         raise Exception("Abstract method called!")
 
+    @staticmethod
+    @abc.abstractmethod
+    def integrate_essential_bc(system_matrix, system_rhs, function_space, indicator_func, bc_func):
+        raise Exception("Abstract method called!")
+
 
 class DefaultSystemAssembler(Assembler):
     def __init__(self):
@@ -149,6 +154,8 @@ class DefaultSystemAssembler(Assembler):
         """
         Integrate simple essential boundary conditions. Simple means bcs like u=u(x).
         Note that the arguments system_matrix, system_rhs and function_space have to be consistent!
+
+        NOTE: This implementation is intented for Bubnov-Galerkin FEM.
 
         :param system_matrix: [in/out] A (sparse) matrix representing the assembled system matrix.
         :param system_rhs: [in/out] A vector (1d-array) representing the assembled system right-hand-side vector.

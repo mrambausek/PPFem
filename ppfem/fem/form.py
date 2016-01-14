@@ -599,3 +599,21 @@ class FormCollection(object):
 
     def bilinear_form_iterator(self):
         return filter(lambda f: hasattr(f, "local_cell_bilinear_form"), self._form_dict.values())
+
+    def test_function_spaces(self):
+        V_test = []
+        for f in self.bilinear_form_iterator():
+            if f.test_function_space not in V_test:
+                V_test.append(f.test_function_space)
+
+        for f in self.linear_form_iterator():
+            if f.test_function_space not in V_test:
+                V_test.append(f.test_function_space)
+        return V_test
+
+    def trial_function_spaces(self):
+        V_trial = []
+        for f in self.bilinear_form_iterator():
+            if f.trial_function_space not in V_trial:
+                V_trial.append(f.test_function_space)
+        return V_trial

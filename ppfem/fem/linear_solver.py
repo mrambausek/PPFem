@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import abc
+import scipy.linalg as spdl
 import scipy.sparse.linalg as spl
 
 
@@ -24,8 +25,17 @@ class LinearSolver(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def solve(self, lhs_matrix, lhs_vector, solution_vector):
+    def solve(self, lhs_matrix, rhs_vector, solution_vector):
         raise Exception('Abstract method called!')
+
+
+class DirectDenseSolver(LinearSolver):
+
+    def __init__(self):
+        LinearSolver.__init__(self)
+
+    def solve(self, lhs_matrix, rhs_vector, solution_vector):
+        solution_vector[:] = spdl.solve(lhs_matrix, rhs_vector)
 
 
 class DirectSparseSolver(LinearSolver):
@@ -33,5 +43,5 @@ class DirectSparseSolver(LinearSolver):
     def __init__(self):
         LinearSolver.__init__(self)
 
-    def solve(self, lhs_matrix, lhs_vector, solution_vector):
-        solution_vector[:] = spl.spsolve(lhs_matrix, lhs_vector)
+    def solve(self, lhs_matrix, rhs_vector, solution_vector):
+        solution_vector[:] = spl.spsolve(lhs_matrix, rhs_vector)
