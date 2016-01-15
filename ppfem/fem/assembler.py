@@ -16,6 +16,8 @@
 
 import abc
 import scipy as sp
+from pygments.lexer import include
+
 from ppfem.fem.function import FEFunction
 
 def find_index_pair(pair, data):
@@ -27,6 +29,24 @@ def find_index_pair(pair, data):
         if p_global[0] == pair[0] and p_global[1] == pair[1]:
             return True
     return False
+
+
+def get_essential_bc_data(indicator_func, bc_func, function_space, current_state):
+    FE_indicator = FEFunction(function_space)
+    FE_bc = FEFunction(function_space)
+
+    def _ind(x):
+        return indicator_func(x).astype(sp.float64)
+
+    FE_indicator.set_dof_values_from_interpolation(_ind)
+    FE_bc.set_dof_values_from_interpolation(bc_func)
+
+    if current_state is not None:
+        FE_bc.set_dof_values(FE_bc.dof_values() - current_state.dof_values())
+
+    constrained_indices = sp.where(FE_indicator.dof_values() == 1)
+    constrained_dof_values = FE_bc.dof_values()[constrained_indices]
+    return constrained_indices, constrained_dof_values
 
 
 class Assembler(abc.ABC):
@@ -170,20 +190,8 @@ class DefaultSystemAssembler(Assembler):
          recompute the essential boundary condition. Especially useful for nonlinear FEM.
         :return: Nothing. System_matrix and system_rhs are manipulated.
         """
-        FE_indicator = FEFunction(function_space)
-        FE_bc = FEFunction(function_space)
-
-        def _ind(x):
-            return indicator_func(x).astype(sp.float64)
-
-        FE_indicator.set_dof_values_from_interpolation(_ind)
-        FE_bc.set_dof_values_from_interpolation(bc_func)
-
-        if current_state is not None:
-            FE_bc.set_dof_values(FE_bc.dof_values() - current_state.dof_values())
-
-        constrained_indices = sp.where(FE_indicator.dof_values() == 1)
-        constrained_dof_values = FE_bc.dof_values()[constrained_indices]
+        constrained_indices, constrained_dof_values = \
+            get_essential_bc_data(indicator_func, bc_func, function_space, current_state)
         #print(constrained_dof_values)
 
         for iv in zip(constrained_indices[0], constrained_dof_values):
