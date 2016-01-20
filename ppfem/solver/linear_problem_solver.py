@@ -16,7 +16,8 @@
 
 import scipy as sp
 import scipy.sparse as sparse
-from ppfem.fem import linear_solver as linsolve
+
+from ppfem.solver import linear_solver as linsolve
 
 
 class SimpleLinearProblemSolver(object):

@@ -16,8 +16,9 @@
 
 import scipy as sp
 import scipy.sparse as sparse
-from ppfem.fem import linear_solver as linsolve
+
 from ppfem.fem.assembler import get_essential_bc_data
+from ppfem.solver import linear_solver as linsolve
 
 
 class SimpleNewtonSolver(object):
